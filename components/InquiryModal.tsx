@@ -9,16 +9,6 @@ interface InquiryModalProps {
     product: Product | null;
 }
 
-const getShortDescription = (text: string): string => {
-    if (!text) return '';
-    const firstSentenceEnd = text.indexOf('.');
-    if (firstSentenceEnd !== -1 && firstSentenceEnd < 160) {
-        return text.slice(0, firstSentenceEnd + 1);
-    }
-    if (text.length <= 160) return text;
-    return `${text.slice(0, 157)}...`;
-};
-
 const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product }) => {
     const { showMessage } = useMessage();
 
@@ -74,7 +64,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                             </div>
                         </div>
                         <p className="text-xs sm:text-sm text-gray-500 leading-relaxed mt-3 sm:mt-4">
-                            {getShortDescription(product.description)}
+                            {product.shortDescription}
                         </p>
                     </div>
 
