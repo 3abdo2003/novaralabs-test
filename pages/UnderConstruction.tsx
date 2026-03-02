@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+// Fixed launch date — same countdown for every visitor, every refresh
+const LAUNCH_DATE = new Date('2026-03-13T00:00:00+02:00').getTime();
 
 const UnderConstruction: React.FC = () => {
-  const [timeLeft, setTimeLeft] = useState(TEN_DAYS_MS);
+  const [timeLeft, setTimeLeft] = useState(() => Math.max(LAUNCH_DATE - Date.now(), 0));
 
   useEffect(() => {
-    const start = Date.now();
-
     const interval = setInterval(() => {
-      const elapsed = Date.now() - start;
-      const remaining = TEN_DAYS_MS - elapsed;
-      setTimeLeft(remaining > 0 ? remaining : 0);
+      setTimeLeft(Math.max(LAUNCH_DATE - Date.now(), 0));
     }, 1000);
 
     return () => clearInterval(interval);
