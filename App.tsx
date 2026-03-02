@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { MessageProvider } from './context/MessageContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -8,30 +8,26 @@ import PeptideDetail from './pages/PeptideDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import ProductValidation from './pages/ProductValidation';
+import UnderConstruction from './pages/UnderConstruction';
 
-const App: React.FC = () => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const hideChrome = location.pathname === '/';
+
   return (
-    <Router>
-      <MessageProvider>
-      <div className="min-h-screen bg-white">
-        <Navbar />
+    <div className="min-h-screen bg-white">
+      {!hideChrome && <Navbar />}
 
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/peptides" element={<Peptides />} />
-            <Route path="/peptides/:slug" element={<PeptideDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/validate" element={<ProductValidation />} />
-          </Routes>
-        </main>
+      <main>
+        {children}
+      </main>
 
+      {!hideChrome && (
         <footer className="bg-zinc-950 text-white py-12 sm:py-20 px-6 sm:px-12 mt-12 sm:mt-20">
           <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8 sm:gap-12">
             <div className="space-y-4">
               <div className="flex items-center space-x-4 cursor-pointer" onClick={() => window.location.href = '/'}>
-                <img src="/logo.png" alt="Novara Labs" className="h-16 w-auto invert brightness-0" />
+                <img src="/logo.png" alt="Novara Labs" className="h-24 w-auto invert brightness-0" />
               </div>
               <p className="text-white/40 max-w-xs text-sm">Providing industry-leading research compounds with transparency and precision.</p>
             </div>
@@ -64,7 +60,26 @@ const App: React.FC = () => {
             <span>USA Laboratories Only</span>
           </div>
         </footer>
-      </div>
+      )}
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <MessageProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<UnderConstruction />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/peptides" element={<Peptides />} />
+            <Route path="/peptides/:slug" element={<PeptideDetail />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/validate" element={<ProductValidation />} />
+          </Routes>
+        </Layout>
       </MessageProvider>
     </Router>
   );
