@@ -34,8 +34,8 @@ const UnderConstruction: React.FC = () => {
   return (
     <div className="min-h-[100dvh] bg-white flex items-center justify-center px-4 py-6 sm:py-0 relative overflow-hidden">
       {/* subtle, white-safe glow accents */}
-      <div className="pointer-events-none absolute -top-40 -left-40 h-[420px] w-[420px] rounded-full bg-orange-200/40 blur-3xl hidden sm:block" />
-      <div className="pointer-events-none absolute -bottom-48 -right-48 h-[520px] w-[520px] rounded-full bg-orange-100/40 blur-3xl hidden sm:block" />
+      <div className="pointer-events-none absolute -top-40 -left-40 h-[420px] w-[420px] rounded-full bg-orange-200/40 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-48 -right-48 h-[520px] w-[520px] rounded-full bg-orange-100/40 blur-3xl" />
 
       <motion.div
         className="max-w-xl w-full flex flex-col items-center text-center space-y-6 sm:space-y-10 relative"
