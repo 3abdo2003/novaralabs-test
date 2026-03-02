@@ -63,7 +63,7 @@ const UnderConstruction: React.FC = () => {
             Pure Science, Elevated
           </p>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight uppercase text-zinc-950">
-            NovaraLab launching in 10 days
+            Novara Labs launching in 10 days
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-medium max-w-xl mx-auto">
             Precision research compounds for scientists who demand clean data, tight tolerances, and absolute transparency.
