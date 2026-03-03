@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { useMessage } from '../context/MessageContext';
 import type { Product } from '../products';
+import FormattedText from './FormattedText';
 
 interface InquiryModalProps {
     isOpen: boolean;
@@ -92,7 +93,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
             />
 
             <div
-                className="relative bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[94vh] sm:max-h-[90vh]"
+                className="relative bg-white w-full max-w-lg rounded-t-xl sm:rounded-xl shadow-xl flex flex-col max-h-[94vh] sm:max-h-[90vh]"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="inquiry-title"
@@ -120,9 +121,10 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                                 <p className="text-xs sm:text-sm font-medium text-gray-600 mt-1">{product.price}</p>
                             </div>
                         </div>
-                        <p className="text-xs sm:text-sm text-gray-500 leading-relaxed mt-3 sm:mt-4">
-                            {product.shortDescription}
-                        </p>
+                        <FormattedText
+                            text={product.shortDescription}
+                            className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4"
+                        />
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3 sm:space-y-4">

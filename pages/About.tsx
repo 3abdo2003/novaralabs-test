@@ -17,14 +17,22 @@ const About: React.FC = () => {
                         </p>
                     </div>
                     <div className="relative mt-12 lg:mt-0">
-                        <div className="aspect-[4/5] bg-gray-50 rounded-[2.5rem] lg:rounded-[5rem] overflow-hidden border border-gray-100 relative group">
+                        <div className="aspect-[4/5] bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 relative group">
                             <div className="absolute inset-0 bg-gradient-to-tr from-gray-100 to-transparent"></div>
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] lg:w-[500px] h-[300px] lg:h-[500px] bg-black/[0.02] blur-[60px] lg:blur-[100px] rounded-full group-hover:bg-black/[0.04] transition-colors duration-1000"></div>
+
+                            {/* Central Brand Logo - Very Large and Full Color */}
+                            <img
+                                src="/logo.png"
+                                alt="Novara Labs"
+                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-auto object-contain transition-transform duration-1000 select-none pointer-events-none group-hover:scale-105"
+                            />
+
                             <div className="absolute inset-6 lg:inset-12 flex flex-col justify-end">
                                 <div className="text-5xl lg:text-8xl font-black text-black/5 uppercase tracking-tighter select-none">PRECISION</div>
                             </div>
                         </div>
-                        <div className="absolute -bottom-6 -left-6 lg:-bottom-10 lg:-left-10 bg-orange-500 text-white p-8 lg:p-12 rounded-[2rem] lg:rounded-[3.5rem] shadow-2xl max-w-[12rem] lg:max-w-xs text-left">
+                        <div className="absolute -bottom-6 -left-6 lg:-bottom-10 lg:-left-10 bg-orange-500 text-white p-8 lg:p-12 rounded-2xl shadow-2xl max-w-[12rem] lg:max-w-xs text-left">
                             <div className="text-2xl lg:text-4xl font-black mb-2 italic">99.9%</div>
                             <p className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-white/50 leading-tight">Minimum Batch Purity Guaranteed</p>
                         </div>
@@ -62,7 +70,7 @@ const About: React.FC = () => {
 
             {/* Team CTA */}
             <section className="py-16 sm:py-24 lg:py-40 px-4 sm:px-6 lg:px-12">
-                <div className="max-w-screen-2xl mx-auto bg-gray-50 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[5rem] p-6 sm:p-10 lg:p-32 text-center relative overflow-hidden group border border-gray-100">
+                <div className="max-w-screen-2xl mx-auto bg-gray-50 rounded-2xl p-6 sm:p-10 lg:p-32 text-center relative overflow-hidden group border border-gray-100">
                     <h2 className="text-2xl sm:text-3xl md:text-8xl font-black text-black uppercase tracking-tighter mb-6 sm:mb-8 lg:mb-12 leading-none relative z-10 px-2 sm:px-4">
                         Let's Talk <br />
                         <span className="text-gray-300">Chemistry.</span>
@@ -72,7 +80,7 @@ const About: React.FC = () => {
                     </p>
                     <a
                         href="/contact"
-                        className="relative z-10 px-10 lg:px-16 py-4 lg:py-6 bg-orange-500 text-white rounded-full font-black uppercase tracking-widest text-sm lg:text-lg hover:bg-orange-600 transition-colors shadow-2xl shadow-orange-500/10 inline-block"
+                        className="relative z-10 px-10 lg:px-16 py-4 lg:py-6 bg-orange-500 text-white rounded-xl font-black uppercase tracking-widest text-sm lg:text-lg hover:bg-orange-600 transition-colors shadow-2xl shadow-orange-500/10 inline-block"
                     >
                         Connect With Us
                     </a>

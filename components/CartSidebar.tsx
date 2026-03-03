@@ -5,12 +5,19 @@ import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import QuantitySelector from './QuantitySelector';
 
+import { useRegion } from '../context/RegionContext';
+import { parsePrice } from '../products';
+
 const CartSidebar: React.FC = () => {
     const { isCartOpen, closeCart, items, removeItem, setQuantity, itemCount } = useCart();
+    const { region } = useRegion();
     const navigate = useNavigate();
 
     const total = items.reduce((sum, item) => {
-        const price = parseFloat(item.product.price.replace('$', ''));
+        const pStr = region === 'EG'
+            ? (item.selectedPrice || item.product.priceEG)
+            : item.product.priceWorldwide;
+        const price = pStr ? (parsePrice(pStr) || 0) : 0;
         return sum + price * item.quantity;
     }, 0);
 
@@ -40,13 +47,13 @@ const CartSidebar: React.FC = () => {
                             <div className="flex items-center gap-3">
                                 <ShoppingBag className="w-5 h-5 text-orange-500" />
                                 <h2 className="text-xl font-black uppercase tracking-tight">Your Cart</h2>
-                                <span className="bg-orange-100 text-orange-600 text-[10px] font-black px-2 py-0.5 rounded-full">
+                                <span className="bg-orange-100 text-orange-600 text-[10px] font-black px-2 py-0.5 rounded-lg">
                                     {itemCount}
                                 </span>
                             </div>
                             <button
                                 onClick={closeCart}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -56,7 +63,7 @@ const CartSidebar: React.FC = () => {
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {items.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center">
+                                    <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center">
                                         <ShoppingBag className="w-10 h-10 text-gray-300" />
                                     </div>
                                     <div>
@@ -68,14 +75,14 @@ const CartSidebar: React.FC = () => {
                                             closeCart();
                                             navigate('/peptides');
                                         }}
-                                        className="px-8 py-3 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors"
+                                        className="px-8 py-3 bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors"
                                     >
                                         Browse Catalog
                                     </button>
                                 </div>
                             ) : (
                                 items.map((item) => (
-                                    <div key={item.product.slug} className="flex gap-4 group">
+                                    <div key={`${item.product.slug}-${item.selectedSize}`} className="flex gap-4 group">
                                         <div className="w-20 h-20 bg-gray-50 rounded-2xl flex-shrink-0 overflow-hidden border border-gray-100 p-2">
                                             <img
                                                 src={item.product.image}
@@ -92,9 +99,12 @@ const CartSidebar: React.FC = () => {
                                                     <h4 className="font-black uppercase tracking-tight text-sm">
                                                         {item.product.name}
                                                     </h4>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                                                        {region === 'EG' ? (item.selectedSize || item.product.size) : item.product.size}
+                                                    </div>
                                                 </div>
                                                 <button
-                                                    onClick={() => removeItem(item.product.slug)}
+                                                    onClick={() => removeItem(item.product.slug, item.selectedSize)}
                                                     className="text-gray-300 hover:text-red-500 transition-colors p-1"
                                                 >
                                                     <Trash2 size={16} />
@@ -104,16 +114,18 @@ const CartSidebar: React.FC = () => {
                                                 <QuantitySelector
                                                     size="sm"
                                                     quantity={item.quantity}
-                                                    onIncrease={() => setQuantity(item.product.slug, item.quantity + 1)}
+                                                    onIncrease={() => setQuantity(item.product.slug, item.quantity + 1, item.selectedSize)}
                                                     onDecrease={() => {
                                                         if (item.quantity > 1) {
-                                                            setQuantity(item.product.slug, item.quantity - 1);
+                                                            setQuantity(item.product.slug, item.quantity - 1, item.selectedSize);
                                                         } else {
-                                                            removeItem(item.product.slug);
+                                                            removeItem(item.product.slug, item.selectedSize);
                                                         }
                                                     }}
                                                 />
-                                                <span className="font-black text-sm">{item.product.price}</span>
+                                                <span className="font-black text-sm text-black">
+                                                    {region === 'EG' ? (item.selectedPrice || item.product.priceEG) : item.product.priceWorldwide}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -126,7 +138,9 @@ const CartSidebar: React.FC = () => {
                             <div className="p-6 border-t border-gray-100 bg-gray-50 space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Subtotal</span>
-                                    <span className="text-2xl font-black text-black">${total.toFixed(2)}</span>
+                                    <span className="text-2xl font-black text-black">
+                                        {region === 'EG' ? `${total.toLocaleString()}L.E` : `€${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                    </span>
                                 </div>
                                 <div className="grid grid-cols-1 gap-3">
                                     <button
@@ -134,7 +148,7 @@ const CartSidebar: React.FC = () => {
                                             closeCart();
                                             navigate('/cart');
                                         }}
-                                        className="w-full py-4 bg-white border border-gray-200 text-black rounded-full text-[10px] font-black uppercase tracking-widest hover:border-black transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-4 bg-white border border-gray-200 text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-black transition-all flex items-center justify-center gap-2"
                                     >
                                         View Full Cart
                                     </button>
@@ -143,7 +157,7 @@ const CartSidebar: React.FC = () => {
                                             closeCart();
                                             navigate('/checkout');
                                         }}
-                                        className="w-full py-4 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2"
+                                        className="w-full py-4 bg-orange-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2"
                                     >
                                         Proceed to Checkout
                                         <ArrowRight size={14} />

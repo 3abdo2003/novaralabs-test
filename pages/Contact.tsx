@@ -34,7 +34,7 @@ const Contact: React.FC = () => {
 
                         <div className="space-y-8 lg:space-y-12">
                             <div className="flex flex-col lg:flex-row items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-8">
-                                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-orange-500 rounded-2xl lg:rounded-3xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+                                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
                                     <Mail size={24} />
                                 </div>
                                 <div>
@@ -43,7 +43,7 @@ const Contact: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex flex-col lg:flex-row items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-8">
-                                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-orange-500 rounded-2xl lg:rounded-3xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+                                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
                                     <Phone size={24} />
                                 </div>
                                 <div>
@@ -52,19 +52,19 @@ const Contact: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex flex-col lg:flex-row items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-8">
-                                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-orange-500 rounded-2xl lg:rounded-3xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+                                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
                                     <MapPin size={24} />
                                 </div>
                                 <div>
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Headquarters</h4>
-                                    <p className="text-lg lg:text-xl font-bold text-black uppercase text-center lg:text-left">Boston Research District, MA</p>
+                                    <p className="text-lg lg:text-xl font-bold text-black uppercase text-center lg:text-left">Warsaw, Poland</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Contact Form */}
-                    <div className="bg-gray-50 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[5rem] p-5 sm:p-8 lg:p-20 border border-gray-100 shadow-2xl shadow-gray-200/50 mt-10 sm:mt-12 lg:mt-0">
+                    <div className="bg-gray-50 rounded-2xl p-5 sm:p-8 lg:p-20 border border-gray-100 shadow-2xl shadow-gray-200/50 mt-10 sm:mt-12 lg:mt-0">
                         <form
                             className="space-y-6 lg:space-y-8"
                             onSubmit={async (e) => {
@@ -137,7 +137,7 @@ const Contact: React.FC = () => {
                                         name="name"
                                         required
                                         placeholder="John Doe"
-                                        className="w-full bg-white border border-gray-100 rounded-2xl lg:rounded-3xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all"
+                                        className="w-full bg-white border border-gray-100 rounded-xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all"
                                     />
                                 </div>
                                 <div className="space-y-3">
@@ -147,7 +147,7 @@ const Contact: React.FC = () => {
                                         name="email"
                                         required
                                         placeholder="john@research.org"
-                                        className="w-full bg-white border border-gray-100 rounded-2xl lg:rounded-3xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all"
+                                        className="w-full bg-white border border-gray-100 rounded-xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all"
                                     />
                                 </div>
                                 <div className="space-y-3 md:col-span-2 lg:col-span-1 xl:col-span-2">
@@ -156,7 +156,7 @@ const Contact: React.FC = () => {
                                         type="tel"
                                         name="phone"
                                         placeholder="+1 (555) 000-0000"
-                                        className="w-full bg-white border border-gray-100 rounded-2xl lg:rounded-3xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all"
+                                        className="w-full bg-white border border-gray-100 rounded-xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all"
                                     />
                                 </div>
                             </div>
@@ -168,7 +168,7 @@ const Contact: React.FC = () => {
                                         required
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
-                                        className="w-full bg-white border border-gray-100 rounded-2xl lg:rounded-3xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all appearance-none"
+                                        className="w-full bg-white border border-gray-100 rounded-xl px-6 lg:px-8 py-4 lg:py-5 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all appearance-none"
                                     >
                                         <option value="" disabled>Select a reason...</option>
                                         {contactReasons.map((r) => (
@@ -188,16 +188,16 @@ const Contact: React.FC = () => {
                                     required
                                     placeholder="How can we help your research today?"
                                     rows={6}
-                                    className="w-full bg-white border border-gray-100 rounded-[2rem] lg:rounded-[3rem] px-6 lg:px-8 py-5 lg:py-6 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all resize-none"
+                                    className="w-full bg-white border border-gray-100 rounded-xl px-6 lg:px-8 py-5 lg:py-6 text-sm font-medium focus:outline-none focus:border-orange-500 transition-all resize-none"
                                 ></textarea>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`w-full text-white rounded-full py-5 lg:py-6 font-black uppercase tracking-widest text-xs md:text-sm flex items-center justify-center space-x-4 transition-colors shadow-2xl min-h-[48px] ${isSubmitting
-                                        ? 'bg-orange-400 cursor-not-allowed shadow-none'
-                                        : 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/10'
+                                className={`w-full text-white rounded-xl py-5 lg:py-6 font-black uppercase tracking-widest text-xs md:text-sm flex items-center justify-center space-x-4 transition-colors shadow-2xl min-h-[48px] ${isSubmitting
+                                    ? 'bg-orange-400 cursor-not-allowed shadow-none'
+                                    : 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/10'
                                     }`}
                             >
                                 {isSubmitting && (

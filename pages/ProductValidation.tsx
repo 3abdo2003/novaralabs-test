@@ -24,7 +24,7 @@ const ProductValidation: React.FC = () => {
                                 { icon: Lock, title: 'Secure Chain', desc: 'Ensuring batch integrity from synthesis to delivery.' }
                             ].map((item, i) => (
                                 <div key={i} className="flex items-start space-x-6">
-                                    <div className="w-10 h-10 lg:w-12 lg:h-12 bg-orange-500 rounded-xl lg:rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20 flex-shrink-0">
+                                    <div className="w-10 h-10 lg:w-12 lg:h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20 flex-shrink-0">
                                         <item.icon className="w-5 h-5 lg:w-6 lg:h-6" />
                                     </div>
                                     <div>

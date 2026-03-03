@@ -26,7 +26,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
 
     return (
         <div
-            className={`flex items-center bg-gray-50 border border-gray-100 rounded-full overflow-hidden ${sizeClasses[size]} ${className}`}
+            className={`flex items-center bg-gray-50 border border-gray-100 rounded-xl overflow-hidden ${sizeClasses[size]} ${className}`}
         >
             <button
                 onClick={(e) => {

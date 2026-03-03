@@ -36,23 +36,13 @@ const Peptides: React.FC = () => {
             <div className="pt-28 sm:pt-32 lg:pt-40 px-4 sm:px-6 lg:px-12 pb-16 sm:pb-24 lg:pb-32 max-w-screen-2xl mx-auto">
                 <div className="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-10 sm:mb-12 lg:mb-20 gap-6 sm:gap-8 text-center lg:text-left">
                     <div className="max-w-2xl">
-                        <div className="text-[10px] font-black tracking-[0.4em] text-gray-300 uppercase mb-3 sm:mb-4">Research Catalog 2024</div>
+                        <div className="text-[10px] font-black tracking-[0.4em] text-gray-300 uppercase mb-3 sm:mb-4">Research Catalog 2026</div>
                         <h1 className="text-3xl sm:text-4xl md:text-8xl font-black text-black uppercase tracking-tighter leading-[0.8] mb-6 sm:mb-8">
                             Advanced <br />Peptides
                         </h1>
                         <p className="text-lg md:text-2xl text-gray-400 font-medium leading-relaxed">
                             Synthesized with 99%+ purity profiles for high-precision laboratory environments.
                         </p>
-                    </div>
-                    <div className="flex flex-col items-center lg:items-end">
-                        <div className="flex -space-x-4 mb-6">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 border-4 border-white flex items-center justify-center overflow-hidden">
-                                    <div className="w-5 h-5 lg:w-6 lg:h-6 bg-gray-300 rounded-full"></div>
-                                </div>
-                            ))}
-                        </div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Trusted by 500+ Labs Worldwide</p>
                     </div>
                 </div>
 
@@ -63,13 +53,13 @@ const Peptides: React.FC = () => {
                         return (
                             <div
                                 key={product.slug}
-                                className="group bg-gray-50 p-4 sm:p-6 lg:p-10 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[4rem] border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col"
+                                className="group bg-gray-50 p-4 sm:p-6 lg:p-10 rounded-2xl border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col"
                             >
                                 <Link
                                     to={`/peptides/${product.slug}`}
                                     className="flex-1 flex flex-col"
                                 >
-                                    <div className="aspect-square bg-white rounded-[1.5rem] lg:rounded-[2rem] mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.03] transition-all relative p-0">
+                                    <div className="aspect-square bg-white rounded-xl mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.03] transition-all relative p-0">
                                         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent"></div>
                                         <div className="absolute w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
                                         <img src={product.image} alt={product.name} className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]" />
@@ -81,7 +71,9 @@ const Peptides: React.FC = () => {
                                                 <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">{product.series}</div>
                                                 <h4 className="text-2xl font-black text-black uppercase tracking-tight">{product.name}</h4>
                                             </div>
-                                            <span className="font-black text-black">{product.price}</span>
+                                            <span className="font-black text-black">
+                                                {region === 'EG' ? product.priceEG : product.priceWorldwide}
+                                            </span>
                                         </div>
                                     </div>
                                 </Link>
@@ -106,7 +98,7 @@ const Peptides: React.FC = () => {
                                                 onClick={() => {
                                                     addItem(product, 1);
                                                 }}
-                                                className="w-full py-4 bg-orange-500 text-white rounded-full font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 hover:shadow-orange-500/40 transition-all shadow-xl shadow-orange-500/10"
+                                                className="w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 hover:shadow-orange-500/40 transition-all shadow-xl shadow-orange-500/10"
                                             >
                                                 Add to cart
                                             </button>
@@ -114,7 +106,7 @@ const Peptides: React.FC = () => {
                                     ) : (
                                         <button
                                             onClick={() => handleInquiry(product)}
-                                            className="w-full py-4 bg-zinc-900 text-white rounded-full font-black uppercase tracking-[0.15em] text-[10px] hover:bg-black transition-all shadow-xl shadow-black/10"
+                                            className="w-full py-4 bg-zinc-900 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-black transition-all shadow-xl shadow-black/10"
                                         >
                                             Send Inquiry
                                         </button>
@@ -139,14 +131,14 @@ const Peptides: React.FC = () => {
                         </p>
                         <a
                             href="/validate"
-                            className="inline-block bg-orange-500 text-white px-10 lg:px-12 py-4 lg:py-5 rounded-full font-black uppercase tracking-widest text-xs md:text-sm hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20"
+                            className="inline-block bg-orange-500 text-white px-10 lg:px-12 py-4 lg:py-5 rounded-xl font-black uppercase tracking-widest text-xs md:text-sm hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20"
                         >
                             Validate Now
                         </a>
                     </div>
-                    <div className="w-full max-w-sm lg:max-w-md aspect-square bg-white/[0.03] border border-white/10 rounded-[2.5rem] lg:rounded-[4rem] p-10 lg:p-12 flex flex-col items-center justify-center space-y-8 relative overflow-hidden group">
+                    <div className="w-full max-w-sm lg:max-w-md aspect-square bg-white/[0.03] border border-white/10 rounded-2xl p-10 lg:p-12 flex flex-col items-center justify-center space-y-8 relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="w-20 h-20 lg:w-24 lg:h-24 bg-orange-500 rounded-2xl lg:rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-orange-500/20">
+                        <div className="w-20 h-20 lg:w-24 lg:h-24 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-2xl shadow-orange-500/20">
                             <span className="text-2xl lg:text-3xl font-black">ID</span>
                         </div>
                         <div className="text-center space-y-2">

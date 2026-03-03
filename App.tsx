@@ -10,14 +10,13 @@ import PeptideDetail from './pages/PeptideDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import ProductValidation from './pages/ProductValidation';
-import UnderConstruction from './pages/UnderConstruction';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import CartSidebar from './components/CartSidebar';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const hideChrome = location.pathname === '/';
+  const hideChrome = false; // Always show chrome now that home is live
 
   return (
     <div className="min-h-screen bg-white">
@@ -61,9 +60,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
             </div>
           </div>
-          <div className="max-w-screen-2xl mx-auto mt-12 sm:mt-20 pt-6 sm:pt-8 border-t border-white/10 text-[10px] font-bold text-white/30 uppercase tracking-[0.3em] flex flex-col sm:flex-row justify-between items-center gap-2 text-center sm:text-left">
-            <span>© 2026 Novara Labs Research Group</span>
-            <span>Europe Based Lab</span>
+          <div className="max-w-screen-2xl mx-auto mt-12 sm:mt-20 pt-6 sm:pt-8 border-t border-white/10 text-[10px] font-bold text-white/30 uppercase tracking-[0.3em] flex flex-col sm:flex-row justify-between items-center sm:items-end gap-4 text-center sm:text-left">
+            <div className="flex flex-col gap-1">
+              <span>© 2026 Novara Labs Research Group</span>
+              <span className="opacity-60">Warsaw, Poland</span>
+            </div>
+            <span className="opacity-60">Europe Based Lab</span>
           </div>
         </footer>
       )}
@@ -79,8 +81,7 @@ const App: React.FC = () => {
           <CartProvider>
             <Layout>
               <Routes>
-                <Route path="/" element={<UnderConstruction />} />
-                <Route path="/home" element={<Home />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/peptides" element={<Peptides />} />
                 <Route path="/peptides/:slug" element={<PeptideDetail />} />
                 <Route path="/cart" element={<Cart />} />

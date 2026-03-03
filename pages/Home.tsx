@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import { ShieldCheck, Handshake, Award, MessageCircle, FlaskConical, CheckCircle2 } from 'lucide-react';
 import { findPeptideByName } from '../products';
+import { useRegion } from '../context/RegionContext';
 
 const Home: React.FC = () => {
+    const { region } = useRegion();
     const revealProps = {
         initial: { opacity: 0, y: 50 },
         whileInView: { opacity: 1, y: 0 },
@@ -26,7 +28,7 @@ const Home: React.FC = () => {
                 <div className="max-w-screen-2xl mx-auto relative z-10">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
                         <div className="flex gap-6 text-left items-start group">
-                            <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shadow-inner border border-orange-100">
+                            <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-orange-100 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shadow-inner border border-orange-100">
                                 <Handshake className="w-10 h-10" aria-hidden />
                             </div>
                             <div>
@@ -35,7 +37,7 @@ const Home: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex gap-6 text-left items-start group">
-                            <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shadow-inner border border-orange-100">
+                            <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-orange-100 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shadow-inner border border-orange-100">
                                 <Award className="w-10 h-10" aria-hidden />
                             </div>
                             <div>
@@ -44,7 +46,7 @@ const Home: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex gap-6 text-left items-start group">
-                            <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shadow-inner border border-orange-100">
+                            <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-orange-100 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shadow-inner border border-orange-100">
                                 <MessageCircle className="w-10 h-10" aria-hidden />
                             </div>
                             <div>
@@ -73,7 +75,7 @@ const Home: React.FC = () => {
                         </div>
                         <a
                             href="/peptides"
-                            className="w-full lg:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-orange-500 text-white rounded-full font-black uppercase tracking-widest text-xs md:text-sm hover:bg-orange-600 transition-colors text-center min-h-[48px] flex items-center justify-center"
+                            className="w-full lg:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-orange-500 text-white rounded-xl font-black uppercase tracking-widest text-xs md:text-sm hover:bg-orange-600 transition-colors text-center min-h-[48px] flex items-center justify-center"
                         >
                             View All Peptides
                         </a>
@@ -90,8 +92,8 @@ const Home: React.FC = () => {
                             const href = productData ? `/peptides/${productData.slug}` : '/peptides';
 
                             return (
-                                <div key={i} className="group bg-gray-50 p-6 lg:p-10 rounded-[2.5rem] lg:rounded-[4rem] border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col">
-                                    <div className="aspect-square bg-white rounded-[1.5rem] lg:rounded-[2rem] mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.05] transition-all relative p-0">
+                                <div key={i} className="group bg-gray-50 p-6 lg:p-10 rounded-2xl border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col">
+                                    <div className="aspect-square bg-white rounded-xl mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.05] transition-all relative p-0">
                                         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent"></div>
                                         <div className="absolute w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
                                         <img src={product.image} alt={product.name} className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]" />
@@ -102,12 +104,14 @@ const Home: React.FC = () => {
                                                 <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">{product.series}</div>
                                                 <h4 className="text-2xl font-black text-black uppercase tracking-tight">{product.name}</h4>
                                             </div>
-                                            <span className="font-black text-black">{product.price}</span>
+                                            <span className="font-black text-black">
+                                                {region === 'EG' ? (productData?.priceEG || product.price) : (productData?.priceWorldwide || product.price)}
+                                            </span>
                                         </div>
                                         <div className="mt-auto pt-6 border-t border-gray-100">
                                             <Link
                                                 to={href}
-                                                className="block w-full py-4 bg-orange-500 text-white rounded-full font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 transition-colors shadow-xl shadow-orange-500/5 text-center"
+                                                className="block w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 transition-colors shadow-xl shadow-orange-500/5 text-center"
                                             >
                                                 View product
                                             </Link>
@@ -152,28 +156,35 @@ const Home: React.FC = () => {
                         <div className="flex items-center justify-center lg:justify-start space-x-6 lg:space-x-8">
                             <div className="flex -space-x-3">
                                 {[
-                                    { icon: Award, color: 'bg-orange-500', label: 'ISO Certified' },
-                                    { icon: ShieldCheck, color: 'bg-zinc-900', label: 'cGMP Compliant' },
                                     { icon: FlaskConical, color: 'bg-orange-600', label: 'Lab Tested' },
                                     { icon: CheckCircle2, color: 'bg-zinc-800', label: 'Purity Verified' },
+                                    { image: '/eu_ce.png', color: 'bg-white', label: 'EU CE Certified', scale: 'scale-[1.3]' },
+                                    { image: '/IsoCert.png', color: 'bg-white', label: 'ISO 9001:2015', scale: 'scale-[1.3]' },
+                                    { image: '/cgmp-GOL.png', color: 'bg-white', label: 'cGMP Certified', scale: 'scale-[1.6]' },
                                 ].map((badge, i) => (
                                     <div
                                         key={i}
-                                        className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full ${badge.color} border-2 border-white flex items-center justify-center text-white shadow-lg relative group/badge`}
+                                        className={`w-9 h-9 lg:w-11 lg:h-11 rounded-full ${badge.color} border-2 border-white flex items-center justify-center text-white shadow-lg relative overflow-hidden`}
+                                        title={badge.label}
                                     >
-                                        <badge.icon className="w-4 h-4 lg:w-5 lg:h-5" />
-                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[8px] px-2 py-1 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold uppercase tracking-widest">
-                                            {badge.label}
-                                        </div>
+                                        {'icon' in badge ? (
+                                            <badge.icon className="w-5 h-5 lg:w-6 lg:h-6" />
+                                        ) : (
+                                            <img
+                                                src={badge.image}
+                                                alt={badge.label}
+                                                className={`w-full h-full object-contain ${badge.scale || 'scale-100'}`}
+                                            />
+                                        )}
                                     </div>
                                 ))}
                             </div>
                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Checked by 12,000+ researchers</p>
                         </div>
                     </div>
-                    <div className="bg-gray-50 border border-gray-100 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[4rem] p-6 sm:p-8 md:p-16 shadow-2xl shadow-gray-200/50">
+                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 sm:p-8 md:p-16 shadow-2xl shadow-gray-200/50">
                         <div className="space-y-8 lg:space-y-10">
-                            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-orange-500 rounded-2xl lg:rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-orange-500/20 mb-8 lg:mb-10 mx-auto">
+                            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-2xl shadow-orange-500/20 mb-8 lg:mb-10 mx-auto">
                                 <ShieldCheck className="w-8 h-8 lg:w-10 lg:h-10" />
                             </div>
                             <div className="text-center">
@@ -184,12 +195,12 @@ const Home: React.FC = () => {
                                 <input
                                     type="text"
                                     placeholder="NOV-XXXX-XXXX"
-                                    className="w-full bg-white border border-gray-100 rounded-2xl lg:rounded-3xl px-6 lg:px-8 py-4 lg:py-5 text-base lg:text-lg font-mono tracking-[0.2em] lg:tracking-[0.3em] text-center text-black focus:outline-none focus:border-orange-500 transition-all uppercase placeholder:text-gray-200"
+                                    className="w-full bg-white border border-gray-100 rounded-xl px-6 lg:px-8 py-4 lg:py-5 text-base lg:text-lg font-mono tracking-[0.2em] lg:tracking-[0.3em] text-center text-black focus:outline-none focus:border-orange-500 transition-all uppercase placeholder:text-gray-200"
                                 />
                             </div>
                             <button
                                 onClick={() => window.location.href = '/validate'}
-                                className="w-full bg-orange-500 text-white rounded-full py-5 lg:py-6 font-black uppercase tracking-widest text-xs md:text-sm hover:bg-orange-600 transition-colors shadow-2xl shadow-orange-500/10"
+                                className="w-full bg-orange-500 text-white rounded-xl py-5 lg:py-6 font-black uppercase tracking-widest text-xs md:text-sm hover:bg-orange-600 transition-colors shadow-2xl shadow-orange-500/10"
                             >
                                 Go to Validation Center
                             </button>
@@ -204,7 +215,7 @@ const Home: React.FC = () => {
                 {...revealProps}
                 className="bg-black py-12 sm:py-20 lg:py-32 px-4 sm:px-6 lg:px-12"
             >
-                <div className="max-w-screen-2xl mx-auto bg-white rounded-2xl sm:rounded-[2.5rem] lg:rounded-[4rem] p-6 sm:p-10 lg:p-32 text-center text-black relative overflow-hidden group shadow-2xl shadow-white/5">
+                <div className="max-w-screen-2xl mx-auto bg-white rounded-2xl p-6 sm:p-10 lg:p-32 text-center text-black relative overflow-hidden group shadow-2xl shadow-white/5">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
                     <h2 className="text-2xl sm:text-3xl md:text-8xl font-black uppercase tracking-tighter mb-6 sm:mb-8 lg:mb-12 leading-none relative z-10 px-2 sm:px-4">
                         Ready to Launch<br className="hidden md:block" />Your Peptide Brand?
@@ -214,7 +225,7 @@ const Home: React.FC = () => {
                     </p>
                     <a
                         href="/contact"
-                        className="relative z-10 inline-block px-8 sm:px-10 lg:px-16 py-4 lg:py-6 bg-orange-500 text-white rounded-full font-black uppercase tracking-widest text-sm lg:text-lg hover:bg-orange-600 transition-colors shadow-2xl shadow-orange-500/20 min-h-[48px] flex items-center justify-center"
+                        className="relative z-10 inline-block px-8 sm:px-10 lg:px-16 py-4 lg:py-6 bg-orange-500 text-white rounded-xl font-black uppercase tracking-widest text-sm lg:text-lg hover:bg-orange-600 transition-colors shadow-2xl shadow-orange-500/20 min-h-[48px] flex items-center justify-center"
                     >
                         Apply Now
                     </a>

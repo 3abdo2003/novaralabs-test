@@ -75,7 +75,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
             />
 
             <div
-                className="relative bg-white w-full max-w-sm rounded-2xl sm:rounded-[1.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button
@@ -89,7 +89,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
 
                 <div className="p-6 sm:p-8 pt-14 sm:pt-8 text-center">
                     <div
-                        className={`w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl flex items-center justify-center ${config.iconBg} ${config.iconColor} border ${config.border}`}
+                        className={`w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-xl flex items-center justify-center ${config.iconBg} ${config.iconColor} border ${config.border}`}
                     >
                         <Icon className="w-7 h-7 sm:w-8 sm:h-8" strokeWidth={2} />
                     </div>

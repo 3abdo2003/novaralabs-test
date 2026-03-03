@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useMessage } from '../context/MessageContext';
 import { findPeptideBySlug, peptides, type Product } from '../products';
 import QuantitySelector from '../components/QuantitySelector';
+import FormattedText from '../components/FormattedText';
 
 const PeptideDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -14,6 +15,8 @@ const PeptideDetail: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { region } = useRegion();
   const { addItem, items, setQuantity, removeItem } = useCart();
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedPrice, setSelectedPrice] = useState<string>('');
 
   useEffect(() => {
     if (!slug) return;
@@ -25,11 +28,23 @@ const PeptideDetail: React.FC = () => {
     setProduct(found);
   }, [slug, navigate]);
 
+  useEffect(() => {
+    if (!product) return;
+
+    if (product.sizesEG && product.sizesEG.length > 0) {
+      setSelectedSize(product.sizesEG[0].size);
+      setSelectedPrice(product.sizesEG[0].price);
+    } else {
+      setSelectedSize(product.size);
+      setSelectedPrice(product.priceEG);
+    }
+  }, [product, region]);
+
   if (!product) {
     return null;
   }
 
-  const cartItem = items.find((i) => i.product.slug === product.slug);
+  const cartItem = items.find((i) => i.product.slug === product.slug && (region !== 'EG' || i.selectedSize === selectedSize));
 
   const relatedProducts = (() => {
     const sameSeries = peptides.filter(
@@ -56,7 +71,7 @@ const PeptideDetail: React.FC = () => {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          <div className="aspect-square bg-gray-50 rounded-[2rem] lg:rounded-[3rem] flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner relative p-0">
+          <div className="aspect-square bg-gray-50 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner relative p-0">
             <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent" />
             <div className="absolute w-64 h-64 lg:w-80 lg:h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-60" />
             <img
@@ -81,23 +96,51 @@ const PeptideDetail: React.FC = () => {
                 <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">
                   Price
                 </div>
-                <div className="text-xl sm:text-2xl font-black text-black">{product.price}</div>
+                <div className="text-xl sm:text-2xl font-black text-black">
+                  {region === 'EG' ? selectedPrice : product.priceWorldwide}
+                </div>
               </div>
               <div>
                 <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">
                   Size
                 </div>
-                <div className="text-base sm:text-lg font-semibold text-black">{product.size}</div>
+                <div className="text-base sm:text-lg font-semibold text-black">{region === 'EG' ? selectedSize : product.size}</div>
               </div>
             </div>
+
+            {region === 'EG' && product.sizesEG && product.sizesEG.length > 0 && (
+              <div className="space-y-4">
+                <h2 className="text-xs font-black tracking-[0.25em] text-gray-400 uppercase">
+                  Select Dosage
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {product.sizesEG.map((s) => (
+                    <button
+                      key={s.size}
+                      onClick={() => {
+                        setSelectedSize(s.size);
+                        setSelectedPrice(s.price);
+                      }}
+                      className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${selectedSize === s.size
+                        ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg shadow-zinc-900/10'
+                        : 'bg-white text-zinc-500 border-gray-100 hover:border-gray-300'
+                        }`}
+                    >
+                      {s.size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <h2 className="text-xs font-black tracking-[0.25em] text-gray-400 uppercase mb-3">
                 Research Overview
               </h2>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                {product.description}
-              </p>
+              <FormattedText
+                text={product.description}
+                className="text-sm sm:text-base text-gray-600"
+              />
             </div>
 
             <div className="pt-4 border-t border-gray-100">
@@ -114,12 +157,12 @@ const PeptideDetail: React.FC = () => {
                     <div className="w-full sm:w-64">
                       <QuantitySelector
                         quantity={cartItem.quantity}
-                        onIncrease={() => setQuantity(product.slug, cartItem.quantity + 1)}
+                        onIncrease={() => setQuantity(product.slug, cartItem.quantity + 1, selectedSize)}
                         onDecrease={() => {
                           if (cartItem.quantity > 1) {
-                            setQuantity(product.slug, cartItem.quantity - 1);
+                            setQuantity(product.slug, cartItem.quantity - 1, selectedSize);
                           } else {
-                            removeItem(product.slug);
+                            removeItem(product.slug, selectedSize);
                           }
                         }}
                       />
@@ -128,9 +171,9 @@ const PeptideDetail: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        addItem(product, 1);
+                        addItem(product, 1, selectedSize, selectedPrice);
                       }}
-                      className="w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-orange-500 text-white rounded-full font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/10 hover:shadow-orange-500/30"
+                      className="w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/10 hover:shadow-orange-500/30"
                     >
                       Add to cart
                     </button>
@@ -147,7 +190,7 @@ const PeptideDetail: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-zinc-900 text-white rounded-full font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs hover:bg-black transition-all shadow-xl shadow-black/10"
+                    className="w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-zinc-900 text-white rounded-xl font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs hover:bg-black transition-all shadow-xl shadow-black/10"
                   >
                     Send Inquiry
                   </button>
@@ -174,10 +217,10 @@ const PeptideDetail: React.FC = () => {
               {relatedProducts.map((rp) => (
                 <div
                   key={rp.slug}
-                  className="group bg-gray-50 p-4 sm:p-6 rounded-3xl lg:rounded-[2.5rem] border border-gray-100 hover:border-black/5 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col"
+                  className="group bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-100 hover:border-black/5 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col"
                 >
                   <Link to={`/peptides/${rp.slug}`} className="flex-1 flex flex-col">
-                    <div className="aspect-square bg-white rounded-2xl lg:rounded-[1.5rem] mb-6 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner relative group-hover:scale-[1.03] transition-all">
+                    <div className="aspect-square bg-white rounded-xl mb-6 flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner relative group-hover:scale-[1.03] transition-all">
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent" />
                       <img
                         src={rp.image}
@@ -194,7 +237,7 @@ const PeptideDetail: React.FC = () => {
                           {rp.name}
                         </h3>
                         <span className="text-base font-black text-black whitespace-nowrap">
-                          {rp.price}
+                          {region === 'EG' ? rp.priceEG : rp.priceWorldwide}
                         </span>
                       </div>
                     </div>
