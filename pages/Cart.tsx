@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useRegion } from '../context/RegionContext';
 import { useMessage } from '../context/MessageContext';
 import { parsePrice } from '../products';
+import QuantitySelector from '../components/QuantitySelector';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
@@ -113,22 +114,25 @@ const Cart: React.FC = () => {
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2">
-                            <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Qty</label>
-                            <input
-                              type="number"
-                              min={1}
-                              max={99}
-                              value={item.quantity}
-                              onChange={(e) => setQuantity(product.slug, Number(e.target.value), item.selectedSize)}
-                              className="w-16 bg-white border border-gray-100 rounded-lg px-3 py-2 text-sm font-bold focus:outline-none focus:border-orange-500 transition-all"
+                        <div className="flex items-center gap-3 sm:gap-4 ml-auto sm:ml-0">
+                          <div className="w-28 sm:w-32">
+                            <QuantitySelector
+                              size="sm"
+                              quantity={item.quantity}
+                              onIncrease={() => setQuantity(product.slug, item.quantity + 1, item.selectedSize)}
+                              onDecrease={() => {
+                                if (item.quantity > 1) {
+                                  setQuantity(product.slug, item.quantity - 1, item.selectedSize);
+                                } else {
+                                  removeItem(product.slug, item.selectedSize);
+                                }
+                              }}
                             />
                           </div>
                           <button
                             type="button"
                             onClick={() => removeItem(product.slug, item.selectedSize)}
-                            className="p-2.5 rounded-lg bg-white border border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all"
+                            className="p-2 sm:p-2.5 rounded-lg bg-white border border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all"
                             aria-label={`Remove ${product.name}`}
                           >
                             <Trash2 className="w-4 h-4" />

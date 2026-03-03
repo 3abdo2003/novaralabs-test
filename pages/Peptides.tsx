@@ -11,7 +11,7 @@ const Peptides: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { region } = useRegion();
+    const { region, setRegion } = useRegion();
     const { addItem, items, setQuantity, removeItem } = useCart();
     const { showMessage } = useMessage();
 
@@ -43,6 +43,23 @@ const Peptides: React.FC = () => {
                         <p className="text-lg md:text-2xl text-gray-400 font-medium leading-relaxed">
                             Synthesized with 99%+ purity profiles for high-precision laboratory environments.
                         </p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-2xl border border-gray-100 backdrop-blur-sm self-center lg:self-end">
+                        <button
+                            type="button"
+                            onClick={() => setRegion('EG')}
+                            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${region === 'EG' ? 'bg-white text-orange-500 shadow-xl shadow-black/5' : 'text-gray-400 hover:text-black'}`}
+                        >
+                            Egypt
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setRegion('WORLDWIDE')}
+                            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${region === 'WORLDWIDE' ? 'bg-white text-orange-500 shadow-xl shadow-black/5' : 'text-gray-400 hover:text-black'}`}
+                        >
+                            Worldwide
+                        </button>
                     </div>
                 </div>
 
