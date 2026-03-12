@@ -509,9 +509,9 @@ const OrdersPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-10 space-y-8 sm:space-y-10">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-10 space-y-5 sm:space-y-10">
               {/* Status Manager */}
-              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 sm:p-6 flex flex-col items-stretch sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-3 sm:p-6 flex flex-col items-stretch sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden">
                   {isUpdatingStatus && (
                       <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10 flex items-center justify-center animate-in fade-in duration-300">
                           <div className="flex items-center gap-3">
@@ -571,7 +571,7 @@ const OrdersPage: React.FC = () => {
                   </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-12">
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Recipient Information</h3>
                   <div className="space-y-1">
@@ -614,20 +614,20 @@ const OrdersPage: React.FC = () => {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead className="bg-zinc-50">
                       <tr>
-                        <th className="p-5 font-black text-zinc-400 uppercase tracking-widest text-[9px]">Description</th>
-                        <th className="p-5 font-black text-zinc-400 uppercase tracking-widest text-[9px] text-center">Qty</th>
-                        <th className="p-5 font-black text-zinc-400 uppercase tracking-widest text-[9px] text-right">Amount</th>
+                        <th className="p-3 sm:p-5 font-black text-zinc-400 uppercase tracking-widest text-[9px]">Description</th>
+                        <th className="p-3 sm:p-5 font-black text-zinc-400 uppercase tracking-widest text-[9px] text-center">Qty</th>
+                        <th className="p-3 sm:p-5 font-black text-zinc-400 uppercase tracking-widest text-[9px] text-right">Amount</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-50">
                       {selectedOrder.items?.map((item, i) => (
                         <tr key={i}>
-                          <td className="p-5 font-bold text-zinc-900">
+                          <td className="p-3 sm:p-5 font-bold text-zinc-900">
                             <span className="text-[11px] uppercase tracking-tight">{item.name}</span>
                             <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">{item.series}</p>
                           </td>
-                          <td className="p-5 text-center font-black text-zinc-300">{item.quantity}</td>
-                          <td className="p-5 text-right font-black text-zinc-900">{item.price}</td>
+                          <td className="p-3 sm:p-5 text-center font-black text-zinc-300">{item.quantity}</td>
+                          <td className="p-3 sm:p-5 text-right font-black text-zinc-900">{item.price}</td>
                         </tr>
                       ))}
                     </tbody>
