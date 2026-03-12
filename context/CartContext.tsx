@@ -117,13 +117,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!existing) return [...prev, { product, quantity: clampInt(qty, 1, data.availableStock), selectedSize: finalSize, selectedPrice: finalPrice, availableStock: data.availableStock }];
         return prev.map((i) =>
           i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || '')
-            ? { ...i, quantity: clampInt(requestedTotal, 1, data.availableStock), availableStock: data.availableStock }
+            ? { ...i, quantity: clampInt(i.quantity, 1, data.availableStock), availableStock: data.availableStock }
             : i,
         );
       });
     } catch (err) {
-      // Rollback on failure
-      setItems(previousState);
+      // Rollback on failure safely targeting only this item
+      setItems((prev) => {
+        const existingInPrevious = previousState.find(p => p.product.slug === product.slug && (p.selectedSize || '') === (finalSize || ''));
+        if (!existingInPrevious) {
+          return prev.filter(p => !(p.product.slug === product.slug && (p.selectedSize || '') === (finalSize || '')));
+        }
+        return prev.map(i => {
+          if (i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || '')) {
+            return { ...i, quantity: existingInPrevious.quantity };
+          }
+          return i;
+        });
+      });
       throw err;
     }
   }, [openCart, items]);
@@ -154,11 +165,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(data.error || 'Failed to update quantity');
       }
 
-      // Sync exact available stock clamps from server
-      setItems((prev) => prev.map((i) => (i.product.slug === slug && (i.selectedSize || '') === (size || '') ? { ...i, quantity: data.quantity, availableStock: data.availableStock } : i)));
+      // Sync available stock limits from server without unconditionally overwriting newer optimistic updates
+      setItems((prev) => prev.map((i) => {
+        if (i.product.slug === slug && (i.selectedSize || '') === (size || '')) {
+          return { ...i, quantity: clampInt(i.quantity, 1, data.availableStock), availableStock: data.availableStock };
+        }
+        return i;
+      }));
     } catch (err) {
-      // Rollback on failure
-      setItems(previousState);
+      // Rollback on failure by restoring the previous specific quantity
+      setItems((prev) => prev.map((i) => {
+        const oldItem = previousState.find(p => p.product.slug === slug && (p.selectedSize || '') === (size || ''));
+        if (i.product.slug === slug && (i.selectedSize || '') === (size || '') && oldItem) {
+            return { ...i, quantity: oldItem.quantity };
+        }
+        return i;
+      }));
       throw err;
     }
   }, []);
