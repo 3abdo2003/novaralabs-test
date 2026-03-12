@@ -17,6 +17,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import InventoryPage from './pages/admin/InventoryPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import PromoCodesPage from './pages/admin/PromoCodesPage';
+import SettingsPage from './pages/admin/SettingsPage';
 import AdminLayout from './components/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminGuard from './components/AdminGuard';
@@ -104,6 +105,7 @@ const App: React.FC = () => {
                 <Route path="/admin/inventory" element={<AdminGuard><AdminLayout><InventoryPage /></AdminLayout></AdminGuard>} />
                 <Route path="/admin/orders" element={<AdminGuard><AdminLayout><OrdersPage /></AdminLayout></AdminGuard>} />
                 <Route path="/admin/promo-codes" element={<AdminGuard><AdminLayout><PromoCodesPage /></AdminLayout></AdminGuard>} />
+                <Route path="/admin/settings" element={<AdminGuard><AdminLayout><SettingsPage /></AdminLayout></AdminGuard>} />
               </Routes>
             </Layout>
           </CartProvider>

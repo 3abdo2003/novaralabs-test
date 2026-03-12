@@ -6,7 +6,8 @@ interface AdminGuardProps {
 }
 
 const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
-    const isAuth = localStorage.getItem('isAdminAuthenticated') === 'true';
+    const token = localStorage.getItem('adminToken');
+    const isAuth = !!token;
     const location = useLocation();
     
     if (!isAuth && location.pathname !== '/admin/login') {

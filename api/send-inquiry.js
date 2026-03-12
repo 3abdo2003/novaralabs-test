@@ -90,7 +90,7 @@ export default async function handler(req, res) {
                         <a href="https://novaralabs.eu/peptides/${product.slug}" class="product-card">
                             <div class="product-info">
                                 <h3>${product.name}</h3>
-                                <p>${product.series} &bull; ${product.price || 'Contact for Price'}</p>
+                                <p>${product.series} &bull; ${product.price || 'Contact for Price'}${product.shortDescription ? ` &bull; ${product.shortDescription}` : ''}</p>
                             </div>
                         </a>
                     </div>

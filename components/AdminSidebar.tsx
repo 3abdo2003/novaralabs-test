@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Ticket, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Ticket, LogOut, Menu, X, ShieldAlert } from 'lucide-react';
 
 const AdminSidebar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -9,6 +9,7 @@ const AdminSidebar: React.FC = () => {
     { icon: Package, label: 'Inventory', path: '/admin/inventory' },
     { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
     { icon: Ticket, label: 'Promo Codes', path: '/admin/promo-codes' },
+    { icon: ShieldAlert, label: 'Settings', path: '/admin/settings' },
   ];
 
   return (

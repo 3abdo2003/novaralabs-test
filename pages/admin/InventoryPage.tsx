@@ -13,6 +13,7 @@ interface Product {
   sizesEG?: { size: string; price: string; stock?: number }[];
   sizesWorldwide?: { size: string; price: string }[];
   description: string;
+  shortDescription?: string;
 }
 
 const InventoryPage: React.FC = () => {
@@ -35,7 +36,8 @@ const InventoryPage: React.FC = () => {
     image: '',
     sizesEG: [{ size: '', price: '', stock: 0 }],
     sizesWorldwide: [{ size: '', price: '' }],
-    description: ''
+    description: '',
+    shortDescription: ''
   };
 
   const [formData, setFormData] = useState<Product>(initialFormData);
@@ -574,7 +576,17 @@ const InventoryPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
+                
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1 flex items-center gap-1.5"><Info className="w-3 h-3" /> Short Description</label>
+                  <input 
+                    className="w-full bg-zinc-50/50 border border-zinc-200 rounded-xl p-3 text-sm font-medium text-zinc-700 outline-none focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                    placeholder="Brief summary for inquiry form..."
+                    value={formData.shortDescription || ''}
+                    onChange={e => setFormData({ ...formData, shortDescription: e.target.value })}
+                  />
+                </div>
+                
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1 flex items-center gap-1.5"><Package className="w-3 h-3" /> Description</label>
                   <textarea 

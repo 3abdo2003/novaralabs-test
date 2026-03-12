@@ -55,6 +55,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                         slug: product.slug,
                         series: product.series,
                         price: product.priceEG,
+                        shortDescription: product.shortDescription,
                     },
                 }),
             });
@@ -118,6 +119,11 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                                 <h2 id="inquiry-title" className="text-lg sm:text-xl font-bold text-black uppercase tracking-tight mt-0.5 break-words">
                                     {product.name}
                                 </h2>
+                                {product.shortDescription && (
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2 leading-tight">
+                                        {product.shortDescription}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>

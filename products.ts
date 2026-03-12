@@ -6,6 +6,7 @@ export interface Product {
   priceWorldwide?: string;
   image: string;
   description: string;
+  shortDescription?: string;
   size?: string;
   sizesEG?: { size: string; price: string }[];
   sizesWorldwide?: { size: string; price: string }[];
@@ -32,6 +33,7 @@ export const peptides: Product[] = [
 
     description:
       'CJC-IPAMORELIN is a dual-peptide research compound engineered to explore amplified growth hormone pulsatility and downstream IGF-1 signaling dynamics. The combination is frequently utilized in experimental models investigating tissue repair pathways, muscle protein synthesis signaling, and recovery-related cellular processes.\n\nKEY RESEARCH BENEFITS:\n• Promotes Lean Muscle Gains\n• Supports Natural Growth hormone Release\n• Enhances Fat Metabolism\n• Accelerates Recovery\n• Improves Body Composition\n\nFor research purposes only. Not for human consumption.',
+    shortDescription: 'Dual-peptide compound for growth hormone optimization and recovery.',
   },
   {
     slug: 'mots-c',
@@ -44,6 +46,7 @@ export const peptides: Product[] = [
 
     description:
       'MOTS-C is a 16–amino acid mitochondrial-derived peptide encoded within the 12S rRNA region of mitochondrial DNA and is frequently used to interrogate metabolic stress-adaptation pathways.\n\nKEY RESEARCH BENEFITS:\n• Improved fat oxidation and metabolism\n• Optimized nutrient partitioning\n• Enhanced cellular energy production\n• Maintained performance during cutting phases\n• Support for peak conditioning\n\nFor research purposes only. Not for human consumption.',
+    shortDescription: 'Mitochondrial-derived peptide for metabolic optimization and energy production.',
   },
   {
     slug: 'retatrutide',
@@ -60,6 +63,7 @@ export const peptides: Product[] = [
 
     description:
       'RETATRUTIDE is a long-acting synthetic peptide studied as a tri-agonist at GLP-1, GIP, and glucagon receptors, making it a powerful tool in advanced metabolic research.\n\nKEY RESEARCH BENEFITS:\n• Enhanced Fat Loss Support\n• Advanced Appetite Control\n• Improved Insulin Sensitivity\n• Supports Major Body Recomposition\n• Long-Acting Metabolic Regulation\n\nFor research purposes only. Not for human consumption.',
+    shortDescription: 'Advanced tri-agonist peptide for comprehensive metabolic regulation and fat loss.',
   },
   {
     slug: 'aod-9604',

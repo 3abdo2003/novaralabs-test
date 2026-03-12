@@ -9,16 +9,28 @@ const AdminLogin: React.FC = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
         
-        // Simple authentication logic for demonstration
-        // In a real app, this would be an API call
-        if (username === 'admin' && password === 'admin123') {
-            localStorage.setItem('isAdminAuthenticated', 'true');
-            navigate('/admin');
-        } else {
-            setError('Invalid credentials');
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                localStorage.setItem('adminToken', data.token);
+                localStorage.setItem('isAdminAuthenticated', 'true');
+                navigate('/admin');
+            } else {
+                setError(data.error || 'Invalid credentials');
+            }
+        } catch (err) {
+            setError('Connection failure. Please try again.');
         }
     };
 
