@@ -14,7 +14,7 @@ interface CartContextValue {
   addItem: (product: Product, quantity?: number, size?: string, price?: string) => Promise<void>;
   removeItem: (slug: string, size?: string) => void;
   setQuantity: (slug: string, quantity: number, size?: string) => Promise<void>;
-  updateItemSize: (slug: string, oldSize: string, newSize: string, newPrice: string) => void;
+  updateItemSize: (slug: string, oldSize: string, newSize: string, newPrice: string) => Promise<void>;
   clear: () => void;
   itemCount: number;
   isCartOpen: boolean;
@@ -185,10 +185,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const updateItemSize = useCallback((slug: string, oldSize: string, newSize: string, newPrice: string) => {
+  const updateItemSize = useCallback(async (slug: string, oldSize: string, newSize: string, newPrice: string) => {
+    let previousState: CartItem[] = [];
+    let targetQuantity = 1;
+
     setItems((prev) => {
+      previousState = prev;
       const target = prev.find(i => i.product.slug === slug && (i.selectedSize || '') === (oldSize || ''));
       if (!target) return prev;
+      targetQuantity = target.quantity;
 
       // Check if the new size already exists in the cart to merge them
       const existingNewSize = prev.find(i => i.product.slug === slug && (i.selectedSize || '') === (newSize || ''));
@@ -207,6 +212,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           : i
       );
     });
+
+    try {
+      const res = await fetch('/api/cart/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, size: newSize, quantity: targetQuantity })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error === 'OUT_OF_STOCK' ? 'This variant is currently out of stock.' : data.error || 'Failed to update item size');
+      }
+
+      setItems((prev) => prev.map((i) => {
+        if (i.product.slug === slug && (i.selectedSize || '') === (newSize || '')) {
+          return { ...i, quantity: clampInt(i.quantity, 1, data.availableStock), availableStock: data.availableStock };
+        }
+        return i;
+      }));
+    } catch (err) {
+      setItems(previousState);
+      throw err;
+    }
   }, []);
 
   const clear = useCallback(() => setItems([]), []);

@@ -405,6 +405,7 @@ const OrdersPage: React.FC = () => {
               <tr className="bg-zinc-50/50 border-b border-zinc-100">
                 <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Order ID</th>
                 <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Customer</th>
+                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest hidden md:table-cell">Items</th>
                 <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Total</th>
                 <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Date</th>
                 <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Status</th>
@@ -420,6 +421,11 @@ const OrdersPage: React.FC = () => {
                 <td className="px-6 py-4">
                   <p className="font-semibold text-zinc-900">{order.customer?.name || 'Unknown'}</p>
                   <p className="text-[10px] text-zinc-400">{order.customer?.email}</p>
+                </td>
+                <td className="px-6 py-4 hidden md:table-cell max-w-[200px]">
+                  <p className="text-[10px] font-medium text-zinc-500 truncate" title={order.items?.map(i => `${i.quantity}x ${i.name} ${i.size ? `(${i.size})` : ''}`).join(', ')}>
+                    {order.items?.map(i => <span key={i.slug + i.size}>{i.quantity}x {i.name} {i.size ? <span className="text-zinc-400">({i.size})</span> : ''}{' '}</span>)}
+                  </p>
                 </td>
                 <td className="px-6 py-4">
                   <p className="font-bold text-zinc-900">{order.total?.toLocaleString()} EGP</p>
@@ -655,7 +661,7 @@ const OrdersPage: React.FC = () => {
                       {selectedOrder.items?.map((item, i) => (
                         <tr key={i}>
                           <td className="p-3 sm:p-5 font-bold text-zinc-900">
-                            <span className="text-[11px] uppercase tracking-tight">{item.name}</span>
+                            <span className="text-[11px] uppercase tracking-tight">{item.name} {item.size ? <span className="text-orange-500">— {item.size}</span> : ''}</span>
                             <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">{item.series}</p>
                           </td>
                           <td className="p-3 sm:p-5 text-center font-black text-zinc-300">{item.quantity}</td>

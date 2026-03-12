@@ -99,7 +99,9 @@ const Cart: React.FC = () => {
                                 onChange={(e) => {
                                   const newSize = e.target.value;
                                   const newPrice = product.sizesEG?.find(s => s.size === newSize)?.price || product.priceEG;
-                                  updateItemSize(product.slug, item.selectedSize || '', newSize, newPrice);
+                                  updateItemSize(product.slug, item.selectedSize || '', newSize, newPrice).catch(err => {
+                                      showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' });
+                                  });
                                 }}
                                 className="text-[10px] font-bold uppercase tracking-widest text-orange-500 bg-transparent border-none p-0 focus:ring-0 cursor-pointer"
                               >

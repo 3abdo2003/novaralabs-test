@@ -30,6 +30,10 @@ export default async function handler(req, res) {
       availableStock = item.stock || 0;
     }
 
+    if (availableStock === 0) {
+      return res.status(400).json({ success: false, error: 'OUT_OF_STOCK', availableStock });
+    }
+
     // Backend implicitly clamps the requested quantity
     const clampedQuantity = Math.max(1, Math.min(quantity, availableStock));
 
