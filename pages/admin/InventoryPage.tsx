@@ -576,6 +576,7 @@ const InventoryPage: React.FC = () => {
                   />
                 </div>
               </div>
+              </div>
             </form>
 
             <div className="bg-white border-t border-zinc-100 px-6 py-4 sm:px-10 sm:py-6">
