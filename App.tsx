@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { MessageProvider } from './context/MessageContext';
 import { RegionProvider } from './context/RegionContext';
@@ -18,6 +18,8 @@ import InventoryPage from './pages/admin/InventoryPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import PromoCodesPage from './pages/admin/PromoCodesPage';
 import AdminLayout from './components/AdminLayout';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminGuard from './components/AdminGuard';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
@@ -80,6 +82,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
+  // Global subdomain check for homepage
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    const isMainDomain = hostname === 'novarlabs-copy.vercel.app';
+    const isAdminSubdomain = hostname === 'admin.novarlabs-copy.vercel.app';
+    const path = window.location.pathname;
+
+    // If on admin subdomain but visiting main content, redirect to main domain
+    if (isAdminSubdomain && !path.startsWith('/admin')) {
+      window.location.href = `https://novarlabs-copy.vercel.app${path}${window.location.search}`;
+    }
+  }, []);
+
   return (
     <Router>
       <MessageProvider>
@@ -97,10 +112,11 @@ const App: React.FC = () => {
                 <Route path="/validate" element={<ProductValidation />} />
                 
                 {/* Admin Routes */}
-                <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
-                <Route path="/admin/inventory" element={<AdminLayout><InventoryPage /></AdminLayout>} />
-                <Route path="/admin/orders" element={<AdminLayout><OrdersPage /></AdminLayout>} />
-                <Route path="/admin/promo-codes" element={<AdminLayout><PromoCodesPage /></AdminLayout>} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<AdminGuard><AdminLayout><AdminDashboard /></AdminLayout></AdminGuard>} />
+                <Route path="/admin/inventory" element={<AdminGuard><AdminLayout><InventoryPage /></AdminLayout></AdminGuard>} />
+                <Route path="/admin/orders" element={<AdminGuard><AdminLayout><OrdersPage /></AdminLayout></AdminGuard>} />
+                <Route path="/admin/promo-codes" element={<AdminGuard><AdminLayout><PromoCodesPage /></AdminLayout></AdminGuard>} />
               </Routes>
             </Layout>
           </CartProvider>
