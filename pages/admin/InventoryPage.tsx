@@ -140,125 +140,199 @@ const InventoryPage: React.FC = () => {
   );
 
   return (
-    <div className="p-8 pb-20 max-w-[1600px] mx-auto relative">
-      <div className="flex items-center justify-between mb-10">
+    <div className="p-4 sm:p-8 pb-20 max-w-[1600px] mx-auto relative">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-10 gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 mb-1.5 tracking-tight">Catalog Management</h1>
-          <p className="text-zinc-400 text-[11px] font-medium uppercase tracking-[0.25em]">Master Inventory & Global Specifications</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 mb-1.5 tracking-tight">Catalog Management</h1>
+          <p className="text-zinc-400 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em]">Master Inventory & Global Specifications</p>
         </div>
         <button 
           onClick={() => { setFormData(initialFormData); setEditingItem(null); setIsAdding(true); }}
-          className="bg-zinc-900 text-white px-6 py-3 rounded-xl text-[11px] font-bold uppercase tracking-widest flex items-center gap-2.5 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200 active:scale-95"
+          className="w-full sm:w-auto bg-zinc-900 text-white px-6 py-3.5 rounded-xl text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2.5 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200 active:scale-95"
         >
           <Plus className="w-4 h-4" /> New Entry
         </button>
       </div>
 
       <div className="bg-white border border-zinc-100 rounded-2xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-zinc-50/50 border-b border-zinc-100">
-              <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest w-[400px]">Product & Info</th>
-              <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Series & Size</th>
-              <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Pricing (EG / Intl)</th>
-              <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest w-[200px]">Inventory Hub</th>
-              <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-50 text-sm">
-            {products.map((product) => (
-              <tr key={product._id} className="hover:bg-zinc-50/30 transition-colors group">
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-zinc-50 border border-zinc-100 overflow-hidden flex items-center justify-center group-hover:bg-white transition-all shadow-sm">
-                        {product.image ? (
-                            <img src={product.image} alt="" className="w-10 h-10 object-contain mix-blend-multiply" />
-                        ) : (
-                            <ImageIcon className="w-5 h-5 text-zinc-200" />
-                        )}
-                    </div>
-                    <div>
-                        <p className="font-bold text-zinc-900 text-sm mb-0.5">{product.name}</p>
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest flex items-center gap-1.5 leading-none">
-                            <Hash className="w-3 h-3" /> {product.slug}
-                        </p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-wider bg-zinc-50 px-2.5 py-1 rounded-lg border border-zinc-100">{product.series}</span>
-                        <p className="text-[11px] font-medium text-zinc-400 pt-1">
-                            {product.sizesEG && product.sizesEG.length > 0 ? product.sizesEG[0].size : (product.sizesWorldwide && product.sizesWorldwide.length > 0 ? product.sizesWorldwide[0].size : 'No Size specified')}
-                        </p>
-                        {product.sizesEG && product.sizesEG.length > 0 && (
-                            <p className="text-[10px] text-orange-500 font-bold mt-1">{product.sizesEG.length} Variants</p>
-                        )}
-                    </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-bold text-zinc-900">{product.priceEG}</p>
-                    <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-tighter">{product.priceWorldwide}</p>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  {(product.sizesEG && product.sizesEG.length > 0) ? (
-                    <div className="space-y-2">
-                       {product.sizesEG.map((v, i) => (
-                           <div key={i} className={`flex justify-between items-center text-[10px] uppercase font-bold tracking-widest border-b border-zinc-50 pb-1 last:border-0 last:pb-0 ${v.stock !== undefined && v.stock < 10 ? 'text-red-500 bg-red-50/50 -mx-1 px-1 rounded' : 'text-zinc-400'}`}>
-                               <span>{v.size} {v.stock !== undefined && v.stock < 10 && <AlertCircle className="w-3 h-3 inline ml-1 -translate-y-[1px]" />}</span>
-                               <span className={(v.stock || 0) < 10 ? 'text-red-600' : 'text-zinc-900'}>{v.stock || 0} Units</span>
-                           </div>
-                       ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                          <span>Available</span>
-                          <span className={product.stock < 10 ? 'text-red-500' : 'text-zinc-900'}>{product.stock} Units</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-                          <div 
-                              className={`h-full rounded-full transition-all duration-1000 ${product.stock < 10 ? 'bg-red-500' : 'bg-orange-500'}`}
-                              style={{ width: `${Math.min((product.stock / 50) * 100, 100)}%` }}
-                          />
-                      </div>
-                    </div>
-                  )}
-                </td>
-                <td className="px-6 py-5 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button 
-                      onClick={() => {
-                        setEditingItem(product);
-                        setFormData(product);
-                        setIsAdding(true);
-                      }}
-                      className="p-2.5 text-zinc-300 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => setItemToDelete({ id: product._id!, name: product.name })}
-                      className="p-2.5 text-zinc-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse hidden lg:table">
+            <thead>
+              <tr className="bg-zinc-50/50 border-b border-zinc-100">
+                <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest w-[400px]">Product & Info</th>
+                <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Series & Size</th>
+                <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Pricing (EG / Intl)</th>
+                <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest w-[200px]">Inventory Hub</th>
+                <th className="px-6 py-5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-zinc-50 text-sm">
+              {products.map((product) => (
+                <tr key={product._id} className="hover:bg-zinc-50/30 transition-colors group">
+                  <td className="px-6 py-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-zinc-50 border border-zinc-100 overflow-hidden flex items-center justify-center group-hover:bg-white transition-all shadow-sm">
+                          {product.image ? (
+                              <img src={product.image} alt="" className="w-10 h-10 object-contain mix-blend-multiply" />
+                          ) : (
+                              <ImageIcon className="w-5 h-5 text-zinc-200" />
+                          )}
+                      </div>
+                      <div>
+                          <p className="font-bold text-zinc-900 text-sm mb-0.5">{product.name}</p>
+                          <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest flex items-center gap-1.5 leading-none">
+                              <Hash className="w-3 h-3" /> {product.slug}
+                          </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                      <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-wider bg-zinc-50 px-2.5 py-1 rounded-lg border border-zinc-100">{product.series}</span>
+                          <p className="text-[11px] font-medium text-zinc-400 pt-1">
+                              {product.sizesEG && product.sizesEG.length > 0 ? product.sizesEG[0].size : (product.sizesWorldwide && product.sizesWorldwide.length > 0 ? product.sizesWorldwide[0].size : 'No Size specified')}
+                          </p>
+                          {product.sizesEG && product.sizesEG.length > 0 && (
+                              <p className="text-[10px] text-orange-500 font-bold mt-1">{product.sizesEG.length} Variants</p>
+                          )}
+                      </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-bold text-zinc-900">{product.priceEG}</p>
+                      <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-tighter">{product.priceWorldwide}</p>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    {(product.sizesEG && product.sizesEG.length > 0) ? (
+                      <div className="space-y-2">
+                         {product.sizesEG.map((v, i) => (
+                             <div key={i} className={`flex justify-between items-center text-[10px] uppercase font-bold tracking-widest border-b border-zinc-50 pb-1 last:border-0 last:pb-0 ${v.stock !== undefined && v.stock < 10 ? 'text-red-500 bg-red-50/50 -mx-1 px-1 rounded' : 'text-zinc-400'}`}>
+                                 <span>{v.size} {v.stock !== undefined && v.stock < 10 && <AlertCircle className="w-3 h-3 inline ml-1 -translate-y-[1px]" />}</span>
+                                 <span className={(v.stock || 0) < 10 ? 'text-red-600' : 'text-zinc-900'}>{v.stock || 0} Units</span>
+                             </div>
+                         ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                            <span>Available</span>
+                            <span className={product.stock < 10 ? 'text-red-500' : 'text-zinc-900'}>{product.stock} Units</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                            <div 
+                                className={`h-full rounded-full transition-all duration-1000 ${product.stock < 10 ? 'bg-red-500' : 'bg-orange-500'}`}
+                                style={{ width: `${Math.min((product.stock / 50) * 100, 100)}%` }}
+                            />
+                        </div>
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-5 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button 
+                        onClick={() => {
+                          setEditingItem(product);
+                          setFormData(product);
+                          setIsAdding(true);
+                        }}
+                        className="p-2.5 text-zinc-300 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => setItemToDelete({ id: product._id!, name: product.name })}
+                        className="p-2.5 text-zinc-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Card View for Mobile */}
+        <div className="lg:hidden divide-y divide-zinc-50">
+          {products.map((product) => (
+            <div key={product._id} className="p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                    {product.image ? (
+                      <img src={product.image} alt="" className="w-8 h-8 object-contain mix-blend-multiply" />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-zinc-200" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-zinc-900 text-sm leading-tight">{product.name}</h3>
+                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">{product.series}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => {
+                      setEditingItem(product);
+                      setFormData(product);
+                      setIsAdding(true);
+                    }}
+                    className="p-2.5 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 rounded-lg transition-all"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => setItemToDelete({ id: product._id!, name: product.name })}
+                    className="p-2.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">EGP Price</p>
+                  <p className="text-xs font-bold text-zinc-900">{product.priceEG}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">Global Price</p>
+                  <p className="text-xs font-bold text-zinc-900">{product.priceWorldwide}</p>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-2">Inventory Status</p>
+                {(product.sizesEG && product.sizesEG.length > 0) ? (
+                  <div className="flex flex-wrap gap-2">
+                    {product.sizesEG.map((v, i) => (
+                      <div key={i} className={`flex items-center gap-2 text-[9px] uppercase font-bold tracking-widest px-2.5 py-1.5 rounded-lg border ${v.stock !== undefined && v.stock < 10 ? 'bg-red-50 border-red-100 text-red-500' : 'bg-zinc-50 border-zinc-100 text-zinc-500'}`}>
+                        <span>{v.size}: {v.stock || 0}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${product.stock < 10 ? 'text-red-500' : 'text-zinc-500'}`}>{product.stock} Units Available</span>
+                    <div className="w-24 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                      <div className={`h-full bg-orange-500 rounded-full`} style={{ width: `${Math.min((product.stock / 50) * 100, 100)}%` }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {isAdding && (
-        <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-6 transition-all duration-300">
-          <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-zinc-100 relative animate-in fade-in zoom-in-95 duration-200">
-            <div className="px-10 py-8 border-b border-zinc-50 flex items-center justify-between bg-zinc-50/30">
+        <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-6 transition-all duration-300">
+          <div className="bg-white rounded-none sm:rounded-2xl max-w-2xl w-full h-full sm:h-auto shadow-2xl overflow-hidden border border-zinc-100 relative animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+            <div className="px-6 sm:px-10 py-6 sm:py-8 border-b border-zinc-50 flex items-center justify-between bg-zinc-50/30">
               <div>
-                <h2 className="text-xl font-bold text-zinc-900 tracking-tight">{editingItem ? 'Specifications Update' : 'Master Catalog Entry'}</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-zinc-900 tracking-tight">{editingItem ? 'Specifications Update' : 'Master Catalog Entry'}</h2>
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mt-1">Technical & Financial Parameters</p>
               </div>
               <button onClick={() => { setIsAdding(false); setEditingItem(null); }} className="text-zinc-400 hover:text-zinc-900 p-2.5 rounded-xl hover:bg-zinc-100 transition-all">
@@ -266,7 +340,7 @@ const InventoryPage: React.FC = () => {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar bg-zinc-50/50">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar bg-zinc-50/50">
               
               {/* Core Information Card */}
               <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm space-y-6">

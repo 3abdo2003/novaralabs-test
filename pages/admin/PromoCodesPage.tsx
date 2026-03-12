@@ -230,10 +230,10 @@ const PromoCodesPage: React.FC = () => {
   );
 
   return (
-    <div className="p-8 pb-20 min-h-screen relative overflow-x-hidden">
+    <div className="p-4 sm:p-8 pb-20 min-h-screen relative overflow-x-hidden">
       {/* Table Section */}
-      <div className={`transition-all duration-500 ease-in-out ${isAdding ? 'pr-[380px]' : ''}`}>
-        <div className="flex items-center justify-between mb-8">
+      <div className={`transition-all duration-500 ease-in-out ${isAdding ? 'lg:pr-[380px]' : ''}`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-6">
           <div>
             <h1 className="text-xl font-semibold text-zinc-900 mb-1 tracking-tight">Promo Codes</h1>
             <p className="text-zinc-400 text-[11px] font-medium uppercase tracking-[0.2em]">Campaign & Status Controls</p>
@@ -241,7 +241,7 @@ const PromoCodesPage: React.FC = () => {
           {!isAdding && (
             <button 
               onClick={() => setIsAdding(true)}
-              className="bg-zinc-900 text-white px-5 py-2.5 rounded-xl text-[11px] font-semibold uppercase tracking-wider flex items-center gap-2 hover:bg-zinc-800 transition-all shadow-sm"
+              className="w-full sm:w-auto bg-zinc-900 text-white px-5 py-3 rounded-xl text-[11px] font-semibold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" /> New Campaign
             </button>
@@ -249,16 +249,17 @@ const PromoCodesPage: React.FC = () => {
         </div>
 
         <div className="bg-white border border-zinc-100 rounded-xl overflow-hidden shadow-sm">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-zinc-50/50 border-b border-zinc-100">
-                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Code</th>
-                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Discount</th>
-                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Expiry</th>
-                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest text-right">Actions</th>
-              </tr>
-            </thead>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[600px] lg:min-w-full">
+              <thead>
+                <tr className="bg-zinc-50/50 border-b border-zinc-100">
+                  <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Code</th>
+                  <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Discount</th>
+                  <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Expiry</th>
+                  <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+              </thead>
             <tbody className="divide-y divide-zinc-50 text-sm">
               {codes.map((promo) => {
                 const displayExpiry = promo.expiry || promo.expiryDate;
@@ -329,11 +330,12 @@ const PromoCodesPage: React.FC = () => {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
       {/* Slide-over Panel */}
-      <div className={`fixed inset-y-0 right-0 w-[400px] bg-white shadow-[-8px_0_40px_rgba(0,0,0,0.04)] border-l border-zinc-100 z-[100] transform transition-transform duration-500 ease-in-out flex flex-col ${isAdding ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-[-8px_0_40px_rgba(0,0,0,0.04)] border-l border-zinc-100 z-[100] transform transition-transform duration-500 ease-in-out flex flex-col ${isAdding ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="px-8 py-10 border-b border-zinc-50 flex items-center justify-between">
             <div>
                 <h2 className="text-xl font-bold text-zinc-900 tracking-tight">New Campaign</h2>

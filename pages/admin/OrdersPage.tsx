@@ -280,12 +280,12 @@ const OrdersPage: React.FC = () => {
 
   return (
     <>
-      <div className="p-8 pb-20 relative min-h-screen">
+      <div className="p-4 sm:p-8 pb-20 relative min-h-screen">
       {showLoader && <FullPageLoader />}
       
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-900 mb-1 tracking-tight">Fulfillment Hub</h1>
+          <h1 className="text-xl font-semibold text-zinc-900 mb-1.5 tracking-tight">Fulfillment Hub</h1>
           <p className="text-zinc-400 text-[11px] font-medium uppercase tracking-[0.2em]">Live Order Stream • {totalOrders} Total Records</p>
         </div>
 
@@ -367,17 +367,18 @@ const OrdersPage: React.FC = () => {
             </div>
           </div>
         )}
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-zinc-50/50 border-b border-zinc-100">
-              <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Order ID</th>
-              <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Customer</th>
-              <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Total</th>
-              <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Date</th>
-              <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Status</th>
-              <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest text-right">Actions</th>
-            </tr>
-          </thead>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[800px] lg:min-w-full">
+            <thead>
+              <tr className="bg-zinc-50/50 border-b border-zinc-100">
+                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Order ID</th>
+                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Customer</th>
+                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Total</th>
+                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Date</th>
+                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Status</th>
+                <th className="px-6 py-4 text-[10px] font-semibold text-zinc-400 uppercase tracking-widest text-right">Actions</th>
+              </tr>
+            </thead>
           <tbody className="divide-y divide-zinc-50 text-sm">
             {orders.map((order) => (
               <tr key={order._id} className="hover:bg-zinc-50/30 transition-colors group">
@@ -458,6 +459,7 @@ const OrdersPage: React.FC = () => {
             ))}
           </tbody>
         </table>
+        </div>
         
         {orders.length === 0 && !loading && (
             <div className="py-20 flex flex-col items-center justify-center text-zinc-300">
@@ -491,13 +493,13 @@ const OrdersPage: React.FC = () => {
         <div className="fixed inset-0 bg-zinc-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-zinc-100 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
             {/* Invoice Header */}
-            <div className="px-10 py-8 bg-zinc-50/50 border-b border-zinc-100 flex items-start justify-between">
+            <div className="px-6 sm:px-10 py-6 sm:py-8 bg-zinc-50/50 border-b border-zinc-100 flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                     <span className="bg-zinc-900 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-tighter">Official Invoice</span>
                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">#{selectedOrder.orderId || selectedOrder._id.slice(-8).toUpperCase()}</span>
                 </div>
-                <h2 className="text-2xl font-bold text-zinc-900 leading-none">Order Specification</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 leading-none">Order Specification</h2>
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mt-3">
                     Issued: {new Date(selectedOrder.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </p>
@@ -507,9 +509,9 @@ const OrdersPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-10 space-y-10 overflow-y-auto">
+            <div className="p-6 sm:p-10 space-y-8 sm:space-y-10 overflow-y-auto">
               {/* Status Manager */}
-              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6 flex items-center justify-between relative overflow-hidden">
+              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
                   {isUpdatingStatus && (
                       <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10 flex items-center justify-center animate-in fade-in duration-300">
                           <div className="flex items-center gap-3">
@@ -569,7 +571,7 @@ const OrdersPage: React.FC = () => {
                  </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12">
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Recipient Information</h3>
                   <div className="space-y-1">

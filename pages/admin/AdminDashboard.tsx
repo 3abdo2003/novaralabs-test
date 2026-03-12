@@ -201,17 +201,17 @@ const AdminDashboard: React.FC = () => {
   const showLoader = loading || isRefreshing;
 
   return (
-    <div className="relative p-8 pb-20 space-y-8 min-h-screen">
+    <div className="relative p-4 sm:p-8 pb-20 space-y-6 sm:space-y-8 min-h-screen">
       {showLoader && <FullPageLoader />}
       
-      <header className="flex justify-between items-start">
+      <header className="flex flex-col sm:flex-row justify-between items-start gap-6">
         <div>
           <h1 className="text-xl font-semibold text-zinc-900 mb-1 tracking-tight">Command Center</h1>
           <p className="text-zinc-400 text-[11px] font-medium uppercase tracking-[0.2em]">Regional Performance Hub</p>
         </div>
         
-        <div className="flex items-center gap-3">
-             <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-1 flex items-center shadow-sm">
+        <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
+             <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-1 flex items-center shadow-sm whitespace-nowrap">
                 {periods.map(p => (
                     <button
                         key={p.value}
@@ -230,16 +230,16 @@ const AdminDashboard: React.FC = () => {
       </header>
 
       {/* Primary KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
          {[
            { label: 'Total Revenue', value: `${data?.kpis.totalRevenue.toLocaleString()}`, unit: 'EGP', accent: 'text-orange-500' },
            { label: 'Avg Order Value', value: `${Math.round(data?.kpis.aov || 0).toLocaleString()}`, unit: 'EGP', accent: 'text-zinc-900' },
            { label: 'Fulfillment Count', value: data?.kpis.totalOrders, accent: 'text-zinc-900' }
          ].map((kpi, i) => (
-           <div key={i} className="bg-white border border-zinc-100 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-             <p className="text-zinc-400 text-[10px] font-semibold uppercase tracking-widest mb-1.5">{kpi.label}</p>
+           <div key={i} className="bg-white border border-zinc-100 p-4 sm:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+             <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">{kpi.label}</p>
              <div className="flex items-baseline gap-1">
-                <h3 className={`text-xl font-bold ${kpi.accent} tracking-tight`}>{kpi.value}</h3>
+                <h3 className={`text-lg sm:text-xl font-bold ${kpi.accent} tracking-tight`}>{kpi.value}</h3>
                 {kpi.unit && <span className="text-[10px] font-bold text-zinc-300">{kpi.unit}</span>}
              </div>
            </div>
@@ -295,9 +295,9 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {lowStockItems.length > 0 && (
-        <div className="bg-white border border-red-100 rounded-xl p-8 shadow-sm">
+        <div className="bg-white border border-red-100 rounded-xl p-4 sm:p-8 shadow-sm">
            <div className="flex justify-between items-center mb-6 border-b border-red-50 pb-4">
-              <h2 className="text-[11px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-2">
+              <h2 className="text-[10px] sm:text-[11px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-2">
                  <TriangleAlert className="w-4 h-4"/> Immediate Stock Attention Required
               </h2>
            </div>
@@ -317,7 +317,7 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance Tables */}
-        <div className="bg-white border border-zinc-100 rounded-xl p-8 shadow-sm">
+        <div className="bg-white border border-zinc-100 rounded-xl p-4 sm:p-8 shadow-sm">
            <div className="flex justify-between items-center mb-6">
               <h2 className="text-[11px] font-bold text-zinc-900 uppercase tracking-widest">High Velocity</h2>
               <ShoppingCart size={13} className="text-zinc-300" />
@@ -340,7 +340,7 @@ const AdminDashboard: React.FC = () => {
            </div>
         </div>
 
-        <div className="bg-white border border-zinc-100 rounded-xl p-8 shadow-sm">
+        <div className="bg-white border border-zinc-100 rounded-xl p-4 sm:p-8 shadow-sm">
            <div className="flex justify-between items-center mb-6">
               <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Low velocity</h2>
               <Package size={13} className="text-zinc-300" />

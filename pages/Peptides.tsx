@@ -117,25 +117,25 @@ const Peptides: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                     {dynamicPeptides.map((product) => {
                         const cartItem = items.find(i => i.product.slug === product.slug);
 
                         return (
                             <div
                                 key={product.slug}
-                                className="group bg-gray-50 p-4 sm:p-6 lg:p-10 rounded-2xl border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col"
+                                className="group bg-gray-50 p-3 sm:p-6 lg:p-10 rounded-2xl border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col"
                             >
                                 <Link
                                     to={`/peptides/${product.slug}`}
                                     className="flex-1 flex flex-col"
                                 >
-                                    <div className="aspect-square bg-white rounded-xl mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.03] transition-all relative p-0">
+                                    <div className="aspect-square bg-white rounded-xl mb-4 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.03] transition-all relative p-0">
                                         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent"></div>
                                         <img 
                                           src={product.image || `/products/${product.slug}.png`} 
                                           alt={product.name} 
-                                          className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]" 
+                                          className="relative z-10 w-full h-full object-contain scale-[1.3] lg:scale-[1.6]" 
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (!target.src.includes(`/products/${product.slug}.png`)) {
