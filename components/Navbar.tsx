@@ -131,7 +131,7 @@ const Navbar: React.FC = () => {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 400 }}
               className="fixed top-24 right-4 bottom-4 left-4 sm:left-auto sm:w-[400px] bg-white rounded-[2rem] z-[101] shadow-2xl p-8 lg:hidden flex flex-col overflow-hidden border border-white/20"
             >
               <button
@@ -148,7 +148,7 @@ const Navbar: React.FC = () => {
                     key={link.name}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 + 0.2 }}
+                    transition={{ delay: idx * 0.05 + 0.05 }}
                   >
                     <Link
                       to={link.path}
@@ -164,7 +164,7 @@ const Navbar: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.2 }}
                 className="pt-8 border-t border-gray-100 space-y-6"
               >
                 <div>

@@ -289,23 +289,6 @@ const QRGeneratorPage: React.FC = () => {
                         </form>
                     </div>
 
-                    <div className="bg-zinc-900 p-8 rounded-3xl text-white space-y-4 shadow-2xl overflow-hidden relative group">
-                        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-3xl transition-all group-hover:bg-white/10" />
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">System Protocol</h4>
-                        <div className="space-y-3 relative">
-                            {[
-                                'Tokens are cryptographically unique',
-                                'Dual-scan security (Auto-expires after 2)',
-                                'Real-time traceability for all assets',
-                                'PDF downloads automatically after generation'
-                            ].map((text, i) => (
-                                <div key={i} className="flex items-center gap-3 text-xs font-semibold text-zinc-300">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                                    {text}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
 
                 {/* Batch History */}
@@ -324,47 +307,47 @@ const QRGeneratorPage: React.FC = () => {
                             <table className="w-full text-left border-separate border-spacing-0">
                                 <thead>
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50">Identity & Origin</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50">Volume</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50">Timestamp</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50 text-right">Insight</th>
+                                        <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50">Identity & Origin</th>
+                                        <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50">Volume</th>
+                                        <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50">Timestamp</th>
+                                        <th className="px-4 sm:px-8 py-4 sm:py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50 text-right">Insight</th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-xs font-semibold text-zinc-600">
                                     {batches.map(batch => (
                                         <tr key={batch._id} className="hover:bg-zinc-50/50 transition-all group active:scale-[0.995]">
-                                            <td className="px-8 py-6 border-b border-zinc-50">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="p-3 bg-zinc-100 rounded-xl text-zinc-400 group-hover:bg-white transition-colors border border-transparent group-hover:border-zinc-200">
+                                            <td className="px-4 sm:px-8 py-4 sm:py-6 border-b border-zinc-50">
+                                                <div className="flex items-center gap-3 sm:gap-4">
+                                                    <div className="p-2 sm:p-3 bg-zinc-100 rounded-xl text-zinc-400 group-hover:bg-white transition-colors border border-transparent group-hover:border-zinc-200">
                                                         <Package className="w-4 h-4" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-zinc-900 text-sm font-black mb-0.5">{batch.productName}</p>
+                                                        <p className="text-zinc-900 text-xs sm:text-sm font-black mb-0.5">{batch.productName}</p>
                                                         <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{batch._id.slice(-8)}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6 border-b border-zinc-50">
-                                                <span className="bg-zinc-100 px-3 py-1 rounded-full font-black text-zinc-900">{batch.count} CODES</span>
+                                            <td className="px-4 sm:px-8 py-4 sm:py-6 border-b border-zinc-50">
+                                                <span className="bg-zinc-100 px-2 sm:px-3 py-1 rounded-full font-black text-zinc-900 whitespace-nowrap">{batch.count} CODES</span>
                                             </td>
-                                            <td className="px-8 py-6 border-b border-zinc-50">
+                                            <td className="px-4 sm:px-8 py-4 sm:py-6 border-b border-zinc-50">
                                                 <div className="flex flex-col gap-1">
-                                                    <div className="flex items-center gap-1.5 text-zinc-400">
+                                                    <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-zinc-400 whitespace-nowrap">
                                                         <Calendar className="w-3 h-3" />
                                                         {new Date(batch.createdAt).toLocaleDateString()}
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-zinc-400">
+                                                    <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-zinc-400 whitespace-nowrap">
                                                         <Clock className="w-3 h-3" />
                                                         {new Date(batch.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6 border-b border-zinc-50 text-right">
+                                            <td className="px-4 sm:px-8 py-4 sm:py-6 border-b border-zinc-50 text-right">
                                                 <button 
                                                     onClick={() => fetchBatchDetails(batch)}
-                                                    className="inline-flex items-center gap-2 text-zinc-900 bg-white border border-zinc-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-zinc-900 transition-all shadow-sm"
+                                                    className="inline-flex items-center gap-1 sm:gap-2 text-zinc-900 bg-white border border-zinc-200 px-3 sm:px-4 py-2 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:border-zinc-900 transition-all shadow-sm"
                                                 >
-                                                    Analysis <ChevronRight className="w-3 h-3" />
+                                                    <span className="hidden sm:inline">Analysis</span> <ChevronRight className="w-3 h-3" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -388,31 +371,31 @@ const QRGeneratorPage: React.FC = () => {
 
             {/* Batch Analysis Modal */}
             {viewingBatch && (
-                <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-zinc-100 animate-in zoom-in-95 duration-200">
-                        <div className="px-8 py-8 border-b border-zinc-50 flex items-center justify-between flex-shrink-0 bg-zinc-50/30">
+                <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-md z-[100] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] rounded-3xl sm:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-zinc-100 animate-in zoom-in-95 duration-200">
+                        <div className="px-4 sm:px-8 py-4 sm:py-8 border-b border-zinc-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-shrink-0 bg-zinc-50/30">
                             <div>
-                                <h2 className="text-xl font-black text-zinc-900 tracking-tight uppercase">{viewingBatch.productName} Analysis</h2>
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Batch ID: {viewingBatch._id}</p>
+                                <h2 className="text-lg sm:text-xl font-black text-zinc-900 tracking-tight uppercase">{viewingBatch.productName}</h2>
+                                <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Batch ID: {viewingBatch._id}</p>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
                                 <button 
                                     onClick={() => generatePDF(viewingBatch._id, viewingBatch.productName)}
-                                    className="px-5 py-3 rounded-2xl bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 transition-all"
+                                    className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-zinc-900 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 transition-all whitespace-nowrap flex-1 sm:flex-none justify-center"
                                 >
                                     <Download className="w-4 h-4" /> Export Batch
                                 </button>
                                 <button 
                                     onClick={() => setViewingBatch(null)}
-                                    className="p-3 bg-white border border-zinc-200 rounded-2xl text-zinc-400 hover:text-zinc-900 transition-all"
+                                    className="p-2.5 sm:p-3 bg-white border border-zinc-200 rounded-xl sm:rounded-2xl text-zinc-400 hover:text-zinc-900 transition-all flex-shrink-0"
                                 >
-                                    <X className="w-5 h-5" />
+                                    <X className="w-4 sm:w-5 h-4 sm:h-5" />
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-8 overscroll-contain">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-8 overscroll-contain">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
                                 <div className="p-6 bg-orange-50/50 rounded-3xl border border-orange-100 flex items-center justify-between">
                                     <div>
                                         <p className="text-[9px] font-black text-orange-400 uppercase tracking-widest mb-1">Unused</p>
@@ -451,7 +434,7 @@ const QRGeneratorPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6">
                                 {selectedBatchTokens.map(token => (
                                     <div key={token._id} className="bg-zinc-50/50 border border-zinc-100 p-4 rounded-3xl flex flex-col items-center gap-3 relative group transition-all hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50">
                                         <div className="p-2 bg-white rounded-2xl border border-zinc-100 shadow-sm relative overflow-hidden">
