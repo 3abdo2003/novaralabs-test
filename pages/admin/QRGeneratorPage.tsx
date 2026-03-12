@@ -114,78 +114,99 @@ const QRGeneratorPage: React.FC = () => {
     };
 
     const generatePDF = async (batchId: string, productName: string) => {
-        const res = await fetch(`/api/admin/qrcodes?batchId=${batchId}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-        });
-        const json = await res.json();
-        if (!json.success) return;
+        setIsGenerating(true); // Show loader during PDF prep
+        try {
+            const res = await fetch(`/api/admin/qrcodes?batchId=${batchId}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+            });
+            const json = await res.json();
+            if (!json.success) return;
 
-        const tokens: QRToken[] = json.data;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const cardWidth = 45;
-        const cardHeight = 60;
-        const margin = 10;
-        const cols = 4;
-        const rows = 4;
-        const qrSize = 30;
+            const tokens: QRToken[] = json.data;
+            
+            // Temporary state to render QR codes in DOM for capture
+            setSelectedBatchTokens(tokens);
+            
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 500));
 
-        let x = margin;
-        let y = margin;
-        let count = 0;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const cardWidth = 45;
+            const cardHeight = 60;
+            const margin = 10;
+            const cols = 4;
+            const rows = 4;
+            const qrSize = 30;
 
-        for (const t of tokens) {
-            if (count > 0 && count % (cols * rows) === 0) {
-                pdf.addPage();
-                x = margin;
-                y = margin;
+            let x = margin;
+            let y = margin;
+            let count = 0;
+
+            for (const t of tokens) {
+                if (count > 0 && count % (cols * rows) === 0) {
+                    pdf.addPage();
+                    x = margin;
+                    y = margin;
+                }
+
+                const qrElement = document.getElementById(`qr-export-${t.token}`);
+                if (!qrElement) continue;
+
+                const svgElement = qrElement.querySelector('svg');
+                if (!svgElement) continue;
+
+                const canvas = document.createElement('canvas');
+                const svgString = new XMLSerializer().serializeToString(svgElement);
+                const img = new Image();
+                
+                await new Promise((resolve) => {
+                    img.onload = () => {
+                        canvas.width = 600;
+                        canvas.height = 600;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.fillStyle = "white";
+                            ctx.fillRect(0, 0, 600, 600);
+                            ctx.drawImage(img, 0, 0, 600, 600);
+                        }
+                        const qrImgData = canvas.toDataURL('image/png');
+                        
+                        pdf.setDrawColor(240, 240, 240);
+                        pdf.rect(x, y, cardWidth, cardHeight);
+                        
+                        pdf.addImage(qrImgData, 'PNG', x + (cardWidth - qrSize) / 2, y + 5, qrSize, qrSize);
+                        
+                        pdf.setFontSize(8);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.setTextColor(26, 26, 26);
+                        pdf.text(productName, x + cardWidth / 2, y + qrSize + 12, { align: 'center' });
+                        
+                        pdf.setFontSize(7);
+                        pdf.setFont('courier', 'bold');
+                        pdf.setTextColor(150, 150, 150);
+                        pdf.text(t.token, x + cardWidth / 2, y + qrSize + 18, { align: 'center' });
+                        
+                        pdf.setFontSize(6);
+                        pdf.text('novarlabs-copy.vercel.app/verify', x + cardWidth / 2, y + qrSize + 22, { align: 'center' });
+
+                        count++;
+                        x += cardWidth + 5;
+                        if (count % cols === 0) {
+                            x = margin;
+                            y += cardHeight + 5;
+                        }
+                        resolve(true);
+                    };
+                    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+                });
             }
 
-            // Draw QR Code onto hidden canvas to get image data
-            const canvas = document.createElement('canvas');
-            const svgString = new XMLSerializer().serializeToString(
-                document.getElementById(`qr-${t.token}`)?.querySelector('svg') as any
-            );
-            const img = new Image();
-            img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
-
-            await new Promise((resolve) => {
-                img.onload = () => {
-                    canvas.width = 300;
-                    canvas.height = 300;
-                    const ctx = canvas.getContext('2d');
-                    ctx?.drawImage(img, 0, 0, 300, 300);
-                    const qrImgData = canvas.toDataURL('image/png');
-                    
-                    pdf.setDrawColor(240, 240, 240);
-                    pdf.rect(x, y, cardWidth, cardHeight);
-                    
-                    pdf.addImage(qrImgData, 'PNG', x + (cardWidth - qrSize) / 2, y + 5, qrSize, qrSize);
-                    
-                    pdf.setFontSize(8);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(26, 26, 26);
-                    pdf.text(productName, x + cardWidth / 2, y + qrSize + 12, { align: 'center' });
-                    
-                    pdf.setFontSize(7);
-                    pdf.setFont('courier', 'bold');
-                    pdf.setTextColor(150, 150, 150);
-                    pdf.text(t.token, x + cardWidth / 2, y + qrSize + 18, { align: 'center' });
-                    
-                    pdf.setFontSize(6);
-                    pdf.text('novaralabs.eu/verify', x + cardWidth / 2, y + qrSize + 22, { align: 'center' });
-
-                    count++;
-                    x += cardWidth + 5;
-                    if (count % cols === 0) {
-                        x = margin;
-                        y += cardHeight + 5;
-                    }
-                    resolve(true);
-                };
-            });
+            pdf.save(`QR-Batch-${productName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error('PDF Generation Error:', error);
+        } finally {
+            setIsGenerating(false);
         }
-
-        pdf.save(`QR-Batch-${productName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`);
     };
 
     if (isLoading) return (
@@ -430,8 +451,8 @@ const QRGeneratorPage: React.FC = () => {
                                     <div key={token._id} className="bg-zinc-50/50 border border-zinc-100 p-4 rounded-3xl flex flex-col items-center gap-3 relative group transition-all hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50">
                                         <div className="p-2 bg-white rounded-2xl border border-zinc-100 shadow-sm relative overflow-hidden">
                                             <QRCodeSVG 
-                                                id={`qr-${token.token}`}
-                                                value={`https://novaralabs.eu/verify/${token.token}`}
+                                                id={`qr-export-${token.token}`}
+                                                value={`https://novarlabs-copy.vercel.app/verify/${token.token}`}
                                                 size={80}
                                                 level="M"
                                                 includeMargin={true}
@@ -468,8 +489,8 @@ const QRGeneratorPage: React.FC = () => {
             {/* Hidden elements for SVG to Canvas extraction */}
             <div className="fixed -left-[2000px] -top-[2000px]">
                 {selectedBatchTokens.map(t => (
-                    <div key={t.token} id={`qr-${t.token}`}>
-                        <QRCodeSVG value={`https://novaralabs.eu/verify/${t.token}`} size={300} includeMargin={true} />
+                    <div key={t.token} id={`qr-export-${t.token}`}>
+                        <QRCodeSVG value={`https://novarlabs-copy.vercel.app/verify/${t.token}`} size={300} includeMargin={true} />
                     </div>
                 ))}
             </div>
