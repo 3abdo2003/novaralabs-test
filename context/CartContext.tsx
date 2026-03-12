@@ -71,7 +71,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addItem = useCallback(async (product: Product, quantity: number = 1, size?: string, price?: string) => {
     const qty = clampInt(quantity, 1, 99);
 
-    // Ensure we have a default size/price if not provided (Egypt region logic)
     let finalSize = size;
     let finalPrice = price;
 
@@ -83,31 +82,50 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       finalPrice = product.priceEG;
     }
 
-    // We need to know current quantity for total requested
     const currentItem = items.find((i) => i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || ''));
     const requestedTotal = (currentItem ? currentItem.quantity : 0) + qty;
 
-    const res = await fetch('/api/cart/add', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: product.slug, size: finalSize, quantity: requestedTotal })
-    });
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || 'Failed to add item');
-    }
-
+    // Optimistic UI update
+    let previousState: CartItem[] = [];
     setItems((prev) => {
+      previousState = prev;
       const existing = prev.find((i) => i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || ''));
-      if (!existing) return [...prev, { product, quantity: clampInt(qty, 1, data.availableStock), selectedSize: finalSize, selectedPrice: finalPrice, availableStock: data.availableStock }];
+      if (!existing) return [...prev, { product, quantity: qty, selectedSize: finalSize, selectedPrice: finalPrice, availableStock: 99 }];
       return prev.map((i) =>
         i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || '')
-          ? { ...i, quantity: clampInt(i.quantity + qty, 1, data.availableStock), availableStock: data.availableStock }
+          ? { ...i, quantity: i.quantity + qty }
           : i,
       );
     });
     openCart();
+
+    try {
+      const res = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: product.slug, size: finalSize, quantity: requestedTotal })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to add item');
+      }
+
+      // Sync exact available stock clamps from server
+      setItems((prev) => {
+        const existing = prev.find((i) => i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || ''));
+        if (!existing) return [...prev, { product, quantity: clampInt(qty, 1, data.availableStock), selectedSize: finalSize, selectedPrice: finalPrice, availableStock: data.availableStock }];
+        return prev.map((i) =>
+          i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || '')
+            ? { ...i, quantity: clampInt(requestedTotal, 1, data.availableStock), availableStock: data.availableStock }
+            : i,
+        );
+      });
+    } catch (err) {
+      // Rollback on failure
+      setItems(previousState);
+      throw err;
+    }
   }, [openCart, items]);
 
   const removeItem = useCallback((slug: string, size?: string) => {
@@ -115,20 +133,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setQuantity = useCallback(async (slug: string, quantity: number, size?: string) => {
-    const qty = Math.max(1, quantity); // Backend sets max clamps
+    const qty = Math.max(1, quantity);
 
-    const res = await fetch('/api/cart/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, size, quantity: qty })
+    // Optimistic UI update
+    let previousState: CartItem[] = [];
+    setItems((prev) => {
+      previousState = prev;
+      return prev.map((i) => (i.product.slug === slug && (i.selectedSize || '') === (size || '') ? { ...i, quantity: qty } : i));
     });
-    const data = await res.json();
 
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || 'Failed to update quantity');
+    try {
+      const res = await fetch('/api/cart/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, size, quantity: qty })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to update quantity');
+      }
+
+      // Sync exact available stock clamps from server
+      setItems((prev) => prev.map((i) => (i.product.slug === slug && (i.selectedSize || '') === (size || '') ? { ...i, quantity: data.quantity, availableStock: data.availableStock } : i)));
+    } catch (err) {
+      // Rollback on failure
+      setItems(previousState);
+      throw err;
     }
-
-    setItems((prev) => prev.map((i) => (i.product.slug === slug && (i.selectedSize || '') === (size || '') ? { ...i, quantity: data.quantity, availableStock: data.availableStock } : i)));
   }, []);
 
   const updateItemSize = useCallback((slug: string, oldSize: string, newSize: string, newPrice: string) => {

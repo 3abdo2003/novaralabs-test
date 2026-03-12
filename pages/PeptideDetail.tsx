@@ -85,14 +85,14 @@ const PeptideDetail: React.FC = () => {
 
   const cartItem = items.find((i) => i.product.slug === product.slug && (region !== 'EG' || i.selectedSize === selectedSize));
 
-  const currentVariantStock = useMemo(() => {
+  const currentVariantStock = (() => {
     if (region !== 'EG') return 99; // Assume unlimited for worldwide inquiries
     if (product.sizesEG && product.sizesEG.length > 0) {
       const variant = product.sizesEG.find(s => s.size === selectedSize);
       return variant ? (variant.stock || 0) : 0;
     }
     return product.stock || 0;
-  }, [product, selectedSize, region]);
+  })();
 
   const relatedProducts = (() => {
     const listToUse = allProducts.length > 0 ? allProducts : peptides;

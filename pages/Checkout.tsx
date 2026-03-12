@@ -414,6 +414,7 @@ const Checkout: React.FC = () => {
                         />
                         <button
                           type="button"
+                          disabled={isValidatingPromo}
                           onClick={async () => {
                             if (!promoInput || isValidatingPromo) return;
                             try {
@@ -437,9 +438,13 @@ const Checkout: React.FC = () => {
                               setIsValidatingPromo(false);
                             }
                           }}
-                          className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors"
+                          className="w-[84px] px-4 py-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/30 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors flex items-center justify-center"
                         >
-                          Apply
+                          {isValidatingPromo ? (
+                            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            'Apply'
+                          )}
                         </button>
                       </div>
                     ) : (
@@ -462,11 +467,17 @@ const Checkout: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5 mb-1.5">
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Subtotal</span>
                     <span className="text-sm font-bold text-white/60">{subtotal > 0 ? (region === 'EG' ? `${subtotal.toLocaleString()}L.E` : `€${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`) : '—'}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  {discountAmount > 0 && (
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Discount</span>
+                      <span className="text-sm font-bold text-orange-500">-{region === 'EG' ? `${discountAmount.toLocaleString()}L.E` : `€${discountAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mb-1.5">
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Total</span>
                     <span className="text-xl font-bold">{total > 0 ? (region === 'EG' ? `${total.toLocaleString()}L.E` : `€${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`) : '—'}</span>
                   </div>
