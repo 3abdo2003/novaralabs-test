@@ -329,7 +329,7 @@ const InventoryPage: React.FC = () => {
 
       {isAdding && (
         <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-6 transition-all duration-300">
-          <div className="bg-white rounded-none sm:rounded-2xl max-w-2xl w-full h-full sm:h-auto shadow-2xl overflow-hidden border border-zinc-100 relative animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+          <div className="bg-white rounded-none sm:rounded-2xl max-w-2xl w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] shadow-2xl overflow-hidden border border-zinc-100 relative animate-in fade-in zoom-in-95 duration-200 flex flex-col">
             <div className="px-6 sm:px-10 py-6 sm:py-8 border-b border-zinc-50 flex items-center justify-between bg-zinc-50/30">
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-zinc-900 tracking-tight">{editingItem ? 'Specifications Update' : 'Master Catalog Entry'}</h2>
@@ -406,7 +406,7 @@ const InventoryPage: React.FC = () => {
                   
                   <div className="bg-zinc-50/50 p-4 rounded-xl border border-zinc-100 space-y-3">
                       {(formData.sizesEG || []).map((sz, idx) => (
-                        <div key={idx} className={`flex flex-wrap sm:flex-nowrap gap-3 items-end bg-white p-3 rounded-xl border shadow-sm relative group ${sz.stock !== undefined && sz.stock < 10 ? 'border-red-200' : 'border-zinc-100'}`}>
+                        <div key={idx} className={`flex flex-col sm:flex-row gap-3 items-start sm:items-end bg-white p-3 rounded-xl border shadow-sm relative group ${sz.stock !== undefined && sz.stock < 10 ? 'border-red-200' : 'border-zinc-100'}`}>
                           <div className="w-full sm:flex-1 space-y-1.5">
                              {idx === 0 && <label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Variant Size</label>}
                              <input 
@@ -485,7 +485,7 @@ const InventoryPage: React.FC = () => {
                       </div>
                       <div className="bg-zinc-50/50 p-4 rounded-xl border border-zinc-100 space-y-3">
                           {(formData.sizesWorldwide || []).map((sz, idx) => (
-                            <div key={idx} className="flex flex-wrap sm:flex-nowrap gap-3 items-end bg-white p-3 rounded-xl border border-zinc-100 shadow-sm relative group">
+                            <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end bg-white p-3 rounded-xl border border-zinc-100 shadow-sm relative group">
                               <div className="w-full sm:flex-1 space-y-1.5">
                                  {idx === 0 && <label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Variant Size</label>}
                                  <input 
@@ -576,7 +576,7 @@ const InventoryPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-2 sticky bottom-0 bg-zinc-50/90 backdrop-blur-md pb-8 -mb-8 px-2">
+              <div className="pt-4 sticky bottom-0 bg-white border-t border-zinc-100 px-6 py-4 -mx-4 sm:-mx-8">
                 <button 
                   type="submit" 
                   disabled={isSubmitting} 

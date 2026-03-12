@@ -490,8 +490,8 @@ const OrdersPage: React.FC = () => {
 
       {/* Invoice Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-zinc-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-zinc-100 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 bg-zinc-900/60 backdrop-blur-md z-50 flex items-center justify-center p-0 sm:p-4">
+          <div className="bg-white rounded-none sm:rounded-2xl max-w-2xl w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] shadow-2xl overflow-hidden border border-zinc-100 flex flex-col animate-in zoom-in-95 duration-300">
             {/* Invoice Header */}
             <div className="px-6 sm:px-10 py-6 sm:py-8 bg-zinc-50/50 border-b border-zinc-100 flex items-start justify-between">
               <div>
@@ -509,7 +509,7 @@ const OrdersPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-6 sm:p-10 space-y-8 sm:space-y-10 overflow-y-auto">
+            <div className="p-4 sm:p-10 space-y-6 sm:space-y-10 overflow-y-auto">
               {/* Status Manager */}
               <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
                   {isUpdatingStatus && (

@@ -146,12 +146,12 @@ const Peptides: React.FC = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <div className="flex justify-between items-start">
+                                        <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
                                             <div>
                                                 <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">{product.series}</div>
-                                                <h4 className="text-2xl font-black text-black uppercase tracking-tight">{product.name}</h4>
+                                                <h4 className="text-xl sm:text-2xl font-black text-black uppercase tracking-tight">{product.name}</h4>
                                             </div>
-                                            <span className="font-black text-black">
+                                            <span className="font-black text-black text-sm sm:text-base whitespace-nowrap">
                                                 {region === 'EG' ? product.priceEG?.replace(/ L\.E/i, 'L.E') : product.priceWorldwide}
                                             </span>
                                         </div>
