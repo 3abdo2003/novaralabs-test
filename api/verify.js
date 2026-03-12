@@ -32,8 +32,8 @@ export default async function handler(req, res) {
             updateData.$set.firstScanAt = now;
             updateData.$set.status = 'verified';
         } else if (qrCode.scanCount === 1) {
-            // Status remains verified, but we record it's the second use
-            updateData.$set.status = 'verified'; 
+            // Mark as expired in DB so Admin Analysis sees Fully Depleted after 2/2
+            updateData.$set.status = 'expired'; 
         } else {
             // Already 2 or more scans - Mark as expired if not already
             if (qrCode.status !== 'expired') {

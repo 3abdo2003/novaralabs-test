@@ -159,44 +159,49 @@ const QRGeneratorPage: React.FC = () => {
                 const svgString = new XMLSerializer().serializeToString(svgElement);
                 const img = new Image();
                 
-                await new Promise((resolve) => {
+                await new Promise((resolve, reject) => {
                     img.onload = () => {
-                        canvas.width = 600;
-                        canvas.height = 600;
-                        const ctx = canvas.getContext('2d');
-                        if (ctx) {
-                            ctx.fillStyle = "white";
-                            ctx.fillRect(0, 0, 600, 600);
-                            ctx.drawImage(img, 0, 0, 600, 600);
-                        }
-                        const qrImgData = canvas.toDataURL('image/png');
-                        
-                        pdf.setDrawColor(240, 240, 240);
-                        pdf.rect(x, y, cardWidth, cardHeight);
-                        
-                        pdf.addImage(qrImgData, 'PNG', x + (cardWidth - qrSize) / 2, y + 5, qrSize, qrSize);
-                        
-                        pdf.setFontSize(8);
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.setTextColor(26, 26, 26);
-                        pdf.text(productName, x + cardWidth / 2, y + qrSize + 12, { align: 'center' });
-                        
-                        pdf.setFontSize(7);
-                        pdf.setFont('courier', 'bold');
-                        pdf.setTextColor(150, 150, 150);
-                        pdf.text(t.token, x + cardWidth / 2, y + qrSize + 18, { align: 'center' });
-                        
-                        pdf.setFontSize(6);
-                        pdf.text('novarlabs-copy.vercel.app/verify', x + cardWidth / 2, y + qrSize + 22, { align: 'center' });
+                        try {
+                            canvas.width = 600;
+                            canvas.height = 600;
+                            const ctx = canvas.getContext('2d');
+                            if (ctx) {
+                                ctx.fillStyle = "white";
+                                ctx.fillRect(0, 0, 600, 600);
+                                ctx.drawImage(img, 0, 0, 600, 600);
+                            }
+                            const qrImgData = canvas.toDataURL('image/png');
+                            
+                            pdf.setDrawColor(240, 240, 240);
+                            pdf.rect(x, y, cardWidth, cardHeight);
+                            
+                            pdf.addImage(qrImgData, 'PNG', x + (cardWidth - qrSize) / 2, y + 5, qrSize, qrSize);
+                            
+                            pdf.setFontSize(8);
+                            pdf.setFont('helvetica', 'bold');
+                            pdf.setTextColor(26, 26, 26);
+                            pdf.text(productName, x + cardWidth / 2, y + qrSize + 12, { align: 'center' });
+                            
+                            pdf.setFontSize(7);
+                            pdf.setFont('courier', 'bold');
+                            pdf.setTextColor(150, 150, 150);
+                            pdf.text(t.token, x + cardWidth / 2, y + qrSize + 18, { align: 'center' });
+                            
+                            pdf.setFontSize(6);
+                            pdf.text('novaralabs-test.vercel.app/verify', x + cardWidth / 2, y + qrSize + 22, { align: 'center' });
 
-                        count++;
-                        x += cardWidth + 5;
-                        if (count % cols === 0) {
-                            x = margin;
-                            y += cardHeight + 5;
+                            count++;
+                            x += cardWidth + 5;
+                            if (count % cols === 0) {
+                                x = margin;
+                                y += cardHeight + 5;
+                            }
+                            resolve(true);
+                        } catch (err) {
+                            reject(err);
                         }
-                        resolve(true);
                     };
+                    img.onerror = reject;
                     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
                 });
             }
