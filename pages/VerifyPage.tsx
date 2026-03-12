@@ -17,6 +17,19 @@ const VerifyPage: React.FC = () => {
     }, [token]);
 
     const verifyToken = async () => {
+        // Check if we already verified this token in this session to prevent refresh double-counting
+        const cached = sessionStorage.getItem(`verified_${token}`);
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                setData(parsed);
+                setStatus(parsed.status);
+                return;
+            } catch (e) {
+                sessionStorage.removeItem(`verified_${token}`);
+            }
+        }
+
         setStatus('loading');
         try {
             const res = await fetch('/api/verify', {
@@ -29,6 +42,8 @@ const VerifyPage: React.FC = () => {
             if (json.success) {
                 setStatus(json.status);
                 setData(json);
+                // Cache result for this session
+                sessionStorage.setItem(`verified_${token}`, JSON.stringify(json));
             } else {
                 setStatus(json.status || 'invalid');
             }
@@ -92,7 +107,7 @@ const VerifyPage: React.FC = () => {
                             animate="visible"
                             className="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-zinc-100 overflow-hidden"
                         >
-                            <div className="bg-emerald-500 p-12 text-center relative">
+                            <div className={`${data?.scanCount === 2 ? 'bg-orange-500' : 'bg-emerald-500'} p-12 text-center relative transition-colors duration-500`}>
                                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20">
                                     <div className="absolute animate-pulse bg-white/30 rounded-full w-64 h-64 -top-32 -right-32" />
                                 </div>
@@ -101,9 +116,15 @@ const VerifyPage: React.FC = () => {
                             
                             <div className="p-10 text-center space-y-8">
                                 <div className="space-y-3">
-                                    <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">Product Verified</h2>
+                                    <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">
+                                        {data?.scanCount === 2 ? 'Second Verification' : 'Product Verified'}
+                                    </h2>
                                     <p className="text-zinc-500 font-medium leading-relaxed">
-                                        This compound has been successfully authenticated against our master distribution catalog. You have acquired a genuine <strong>Novara Labs</strong> product.
+                                        {data?.scanCount === 2 ? (
+                                            <>This is the <strong>second and final</strong> scan for this product. Further scans will result in an expired status for security purposes.</>
+                                        ) : (
+                                            <>This compound has been successfully authenticated against our master distribution catalog. You have acquired a genuine <strong>Novara Labs</strong> product.</>
+                                        )}
                                     </p>
                                 </div>
 
@@ -125,7 +146,7 @@ const VerifyPage: React.FC = () => {
                                             <p className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Scan Status</p>
                                             <div className="flex items-center gap-2">
                                                 <div className="h-2 w-24 bg-zinc-200 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-emerald-500" style={{ width: data?.scanCount === 1 ? '50%' : '100%' }} />
+                                                    <div className={`h-full ${data?.scanCount === 2 ? 'bg-orange-500' : 'bg-emerald-500'}`} style={{ width: data?.scanCount === 1 ? '50%' : '100%' }} />
                                                 </div>
                                                 <p className="text-xs font-bold text-zinc-900">{data?.scanCount} / 2</p>
                                             </div>

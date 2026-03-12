@@ -32,13 +32,16 @@ export default async function handler(req, res) {
             updateData.$set.firstScanAt = now;
             updateData.$set.status = 'verified';
         } else if (qrCode.scanCount === 1) {
-            updateData.$set.status = 'expired';
+            // Status remains verified, but we record it's the second use
+            updateData.$set.status = 'verified'; 
         } else {
-            // Already 2 or more scans
+            // Already 2 or more scans - Mark as expired if not already
+            if (qrCode.status !== 'expired') {
+                await collection.updateOne({ _id: qrCode._id }, { $set: { status: 'expired' } });
+            }
             return res.status(200).json({ 
                 success: true, 
                 status: 'expired', 
-                message: 'QR Code Invalid: This code has already been used multiple times.',
                 productName: qrCode.productName,
                 scanCount: qrCode.scanCount
             });
@@ -48,10 +51,9 @@ export default async function handler(req, res) {
 
         return res.status(200).json({
             success: true,
-            status: qrCode.scanCount === 0 ? 'verified' : 'expired',
+            status: 'verified',
             productName: qrCode.productName,
-            scanCount: qrCode.scanCount + 1,
-            message: 'Product Verified: This product is authentic.'
+            scanCount: qrCode.scanCount + 1
         });
 
     } catch (error) {
