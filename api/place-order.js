@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import clientPromise from './utils/db.js';
+import clientPromise from '../lib/mongodb.js';
 
 function safeStr(x) {
   return typeof x === 'string' ? x.trim() : '';
