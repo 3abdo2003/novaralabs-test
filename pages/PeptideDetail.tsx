@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import InquiryModal from '../components/InquiryModal';
 import { useRegion } from '../context/RegionContext';
@@ -20,6 +20,7 @@ const PeptideDetail: React.FC = () => {
   const { addItem, items, setQuantity, removeItem } = useCart();
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedPrice, setSelectedPrice] = useState<string>('');
+  const { showMessage } = useMessage();
 
   useEffect(() => {
     if (!slug) return;
@@ -84,6 +85,15 @@ const PeptideDetail: React.FC = () => {
 
   const cartItem = items.find((i) => i.product.slug === product.slug && (region !== 'EG' || i.selectedSize === selectedSize));
 
+  const currentVariantStock = useMemo(() => {
+    if (region !== 'EG') return 99; // Assume unlimited for worldwide inquiries
+    if (product.sizesEG && product.sizesEG.length > 0) {
+      const variant = product.sizesEG.find(s => s.size === selectedSize);
+      return variant ? (variant.stock || 0) : 0;
+    }
+    return product.stock || 0;
+  }, [product, selectedSize, region]);
+
   const relatedProducts = (() => {
     const listToUse = allProducts.length > 0 ? allProducts : peptides;
     const sameSeries = listToUse.filter(
@@ -147,6 +157,14 @@ const PeptideDetail: React.FC = () => {
                 </div>
                 <div className="text-base sm:text-lg font-semibold text-black">{selectedSize}</div>
               </div>
+              {region === 'EG' && currentVariantStock <= 5 && currentVariantStock > 0 && (
+                <div>
+                  <div className="text-[10px] font-black tracking-[0.2em] text-red-400 uppercase mb-1">
+                    Stock
+                  </div>
+                  <div className="text-sm font-bold text-red-500">Only {currentVariantStock} left</div>
+                </div>
+              )}
             </div>
 
             {region === 'EG' && product.sizesEG && product.sizesEG.length > 0 && (
@@ -219,14 +237,29 @@ const PeptideDetail: React.FC = () => {
                     Add this item to your cart, then checkout with Instapay or Cash on Delivery.
                   </p>
 
-                  {cartItem ? (
+                  {currentVariantStock <= 0 ? (
+                    <button
+                      disabled
+                      className="w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-gray-100 text-gray-400 rounded-xl font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs cursor-not-allowed"
+                    >
+                      Out of Stock
+                    </button>
+                  ) : cartItem ? (
                     <div className="w-full sm:w-64">
                       <QuantitySelector
                         quantity={cartItem.quantity}
-                        onIncrease={() => setQuantity(product.slug, cartItem.quantity + 1, selectedSize)}
+                        onIncrease={() => {
+                          if (cartItem.availableStock !== undefined && cartItem.quantity >= cartItem.availableStock) {
+                            showMessage({ variant: 'info', title: 'Stock Limit', message: `Only ${cartItem.availableStock} units available.`, buttonLabel: 'OK' });
+                            return;
+                          }
+                          setQuantity(product.slug, cartItem.quantity + 1, selectedSize).catch(err => {
+                            showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' });
+                          });
+                        }}
                         onDecrease={() => {
                           if (cartItem.quantity > 1) {
-                            setQuantity(product.slug, cartItem.quantity - 1, selectedSize);
+                            setQuantity(product.slug, cartItem.quantity - 1, selectedSize).catch(err => showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' }));
                           } else {
                             removeItem(product.slug, selectedSize);
                           }
@@ -237,7 +270,9 @@ const PeptideDetail: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        addItem(product, 1, selectedSize, selectedPrice);
+                        addItem(product, 1, selectedSize, selectedPrice).catch(err => {
+                          showMessage({ variant: 'error', title: 'Stock Error', message: err.message, buttonLabel: 'OK' });
+                        });
                       }}
                       className="w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/10 hover:shadow-orange-500/30"
                     >

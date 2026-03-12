@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import QuantitySelector from './QuantitySelector';
 
 import { useRegion } from '../context/RegionContext';
+import { useMessage } from '../context/MessageContext';
 import { parsePrice } from '../products';
 
 const CartSidebar: React.FC = () => {
     const { isCartOpen, closeCart, items, removeItem, setQuantity, itemCount } = useCart();
     const { region } = useRegion();
+    const { showMessage } = useMessage();
     const navigate = useNavigate();
 
     const total = items.reduce((sum, item) => {
@@ -114,10 +116,20 @@ const CartSidebar: React.FC = () => {
                                                 <QuantitySelector
                                                     size="sm"
                                                     quantity={item.quantity}
-                                                    onIncrease={() => setQuantity(item.product.slug, item.quantity + 1, item.selectedSize)}
+                                                    onIncrease={() => {
+                                                        if (item.availableStock !== undefined && item.quantity >= item.availableStock) {
+                                                            showMessage({ variant: 'info', title: 'Stock Limit', message: `Only ${item.availableStock} units available in stock.`, buttonLabel: 'OK' });
+                                                            return;
+                                                        }
+                                                        setQuantity(item.product.slug, item.quantity + 1, item.selectedSize).catch(err => {
+                                                            showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' });
+                                                        });
+                                                    }}
                                                     onDecrease={() => {
                                                         if (item.quantity > 1) {
-                                                            setQuantity(item.product.slug, item.quantity - 1, item.selectedSize);
+                                                            setQuantity(item.product.slug, item.quantity - 1, item.selectedSize).catch(err => {
+                                                                showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' });
+                                                            });
                                                         } else {
                                                             removeItem(item.product.slug, item.selectedSize);
                                                         }

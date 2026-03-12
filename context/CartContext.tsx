@@ -6,13 +6,14 @@ export interface CartItem {
   quantity: number;
   selectedSize?: string;
   selectedPrice?: string;
+  availableStock?: number;
 }
 
 interface CartContextValue {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number, size?: string, price?: string) => void;
+  addItem: (product: Product, quantity?: number, size?: string, price?: string) => Promise<void>;
   removeItem: (slug: string, size?: string) => void;
-  setQuantity: (slug: string, quantity: number, size?: string) => void;
+  setQuantity: (slug: string, quantity: number, size?: string) => Promise<void>;
   updateItemSize: (slug: string, oldSize: string, newSize: string, newPrice: string) => void;
   clear: () => void;
   itemCount: number;
@@ -44,6 +45,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           quantity: clampInt(Number(x.quantity), 1, 99),
           selectedSize: x.selectedSize,
           selectedPrice: x.selectedPrice,
+          availableStock: typeof x.availableStock === 'number' ? x.availableStock : 99,
         }))
         .filter((x) => x.product && typeof x.product.slug === 'string' && typeof x.product.name === 'string');
     } catch {
@@ -66,7 +68,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const openCart = useCallback(() => setIsCartOpen(true), []);
   const closeCart = useCallback(() => setIsCartOpen(false), []);
 
-  const addItem = useCallback((product: Product, quantity: number = 1, size?: string, price?: string) => {
+  const addItem = useCallback(async (product: Product, quantity: number = 1, size?: string, price?: string) => {
     const qty = clampInt(quantity, 1, 99);
 
     // Ensure we have a default size/price if not provided (Egypt region logic)
@@ -81,25 +83,52 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       finalPrice = product.priceEG;
     }
 
+    // We need to know current quantity for total requested
+    const currentItem = items.find((i) => i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || ''));
+    const requestedTotal = (currentItem ? currentItem.quantity : 0) + qty;
+
+    const res = await fetch('/api/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: product.slug, size: finalSize, quantity: requestedTotal })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Failed to add item');
+    }
+
     setItems((prev) => {
       const existing = prev.find((i) => i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || ''));
-      if (!existing) return [...prev, { product, quantity: qty, selectedSize: finalSize, selectedPrice: finalPrice }];
+      if (!existing) return [...prev, { product, quantity: clampInt(qty, 1, data.availableStock), selectedSize: finalSize, selectedPrice: finalPrice, availableStock: data.availableStock }];
       return prev.map((i) =>
         i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || '')
-          ? { ...i, quantity: clampInt(i.quantity + qty, 1, 99) }
+          ? { ...i, quantity: clampInt(i.quantity + qty, 1, data.availableStock), availableStock: data.availableStock }
           : i,
       );
     });
     openCart();
-  }, [openCart]);
+  }, [openCart, items]);
 
   const removeItem = useCallback((slug: string, size?: string) => {
     setItems((prev) => prev.filter((i) => !(i.product.slug === slug && (i.selectedSize || '') === (size || ''))));
   }, []);
 
-  const setQuantity = useCallback((slug: string, quantity: number, size?: string) => {
-    const qty = clampInt(quantity, 1, 99);
-    setItems((prev) => prev.map((i) => (i.product.slug === slug && (i.selectedSize || '') === (size || '') ? { ...i, quantity: qty } : i)));
+  const setQuantity = useCallback(async (slug: string, quantity: number, size?: string) => {
+    const qty = Math.max(1, quantity); // Backend sets max clamps
+
+    const res = await fetch('/api/cart/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, size, quantity: qty })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Failed to update quantity');
+    }
+
+    setItems((prev) => prev.map((i) => (i.product.slug === slug && (i.selectedSize || '') === (size || '') ? { ...i, quantity: data.quantity, availableStock: data.availableStock } : i)));
   }, []);
 
   const updateItemSize = useCallback((slug: string, oldSize: string, newSize: string, newPrice: string) => {

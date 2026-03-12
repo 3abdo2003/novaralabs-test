@@ -164,6 +164,17 @@ const Checkout: React.FC = () => {
 
               const data = await response.json().catch(() => ({}));
               if (!response.ok || !data?.success) {
+                if (data?.error === 'INSUFFICIENT_STOCK') {
+                  showMessage({
+                    variant: 'error',
+                    title: 'Stock Updated',
+                    message: 'Some items in your cart are no longer available in the requested quantity. Please review your cart.',
+                    buttonLabel: 'Review Cart',
+                  });
+                  navigate('/cart');
+                  setIsSubmitting(false);
+                  return;
+                }
                 throw new Error(data?.error || 'Failed to place order');
               }
 
@@ -392,48 +403,61 @@ const Checkout: React.FC = () => {
                 <div className="space-y-4 pt-6 border-t border-white/5">
                   <div className="space-y-2">
                     <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Promo Code</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={promoInput}
-                        onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                        placeholder="ENTER CODE"
-                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-white uppercase focus:outline-none focus:border-orange-500/50"
-                      />
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          if (!promoInput || isValidatingPromo) return;
-                          try {
-                            setIsValidatingPromo(true);
-                            const res = await fetch('/api/validate-promo', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ code: promoInput })
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                              setAppliedPromo({ code: promoInput, discount: data.discount, type: data.type });
-                              showMessage({ variant: 'success', title: 'Code Applied', message: `You saved ${data.type === 'PERCENTAGE' ? `${data.discount}%` : `${data.discount} L.E`}`, buttonLabel: 'Great' });
-                            } else {
-                              setAppliedPromo(null);
-                              showMessage({ variant: 'error', title: 'Invalid Code', message: data.error || 'Code not found', buttonLabel: 'OK' });
+                    {!appliedPromo ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={promoInput}
+                          onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                          placeholder="ENTER CODE"
+                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-white uppercase focus:outline-none focus:border-orange-500/50"
+                        />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!promoInput || isValidatingPromo) return;
+                            try {
+                              setIsValidatingPromo(true);
+                              const res = await fetch('/api/validate-promo', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ code: promoInput })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                setAppliedPromo({ code: promoInput, discount: data.discount, type: data.type });
+                                showMessage({ variant: 'success', title: 'Code Applied', message: `You saved ${data.type === 'PERCENTAGE' ? `${data.discount}%` : `${data.discount} L.E`}`, buttonLabel: 'Great' });
+                              } else {
+                                setAppliedPromo(null);
+                                showMessage({ variant: 'error', title: 'Invalid Code', message: data.error || 'Code not found', buttonLabel: 'OK' });
+                              }
+                            } catch (err) {
+                              console.error(err);
+                            } finally {
+                              setIsValidatingPromo(false);
                             }
-                          } catch (err) {
-                            console.error(err);
-                          } finally {
-                            setIsValidatingPromo(false);
-                          }
-                        }}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                    {appliedPromo && (
-                      <div className="flex items-center justify-between text-[10px] font-bold text-orange-500">
-                        <span className="uppercase tracking-widest">Discount ({appliedPromo.code})</span>
-                        <span>-{appliedPromo.type === 'PERCENTAGE' ? `${appliedPromo.discount}%` : `${appliedPromo.discount} L.E`}</span>
+                          }}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between bg-white/5 border border-orange-500/30 rounded-lg px-4 py-3">
+                        <div className="flex flex-col">
+                           <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Code Applied: {appliedPromo.code}</span>
+                           <span className="text-[9px] text-orange-500/80 mt-1 uppercase tracking-widest">Discount: {appliedPromo.type === 'PERCENTAGE' ? `${appliedPromo.discount}%` : `${appliedPromo.discount} L.E`}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppliedPromo(null);
+                            setPromoInput('');
+                          }}
+                          className="text-[9px] font-black text-white/40 hover:text-white uppercase tracking-widest transition-colors"
+                        >
+                          [Remove]
+                        </button>
                       </div>
                     )}
                   </div>

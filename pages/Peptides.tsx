@@ -121,6 +121,11 @@ const Peptides: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                     {dynamicPeptides.map((product) => {
                         const cartItem = items.find(i => i.product.slug === product.slug);
+                        
+                        let totalStock = product.stock || 0;
+                        if (product.sizesEG && product.sizesEG.length > 0) {
+                            totalStock = product.sizesEG.reduce((sum, v) => sum + (v.stock || 0), 0);
+                        }
 
                         return (
                             <div
@@ -157,7 +162,14 @@ const Peptides: React.FC = () => {
 
                                 <div className="mt-auto pt-6 border-t border-gray-100">
                                     {region === 'EG' ? (
-                                        (product.sizesEG && product.sizesEG.length > 1) ? (
+                                        totalStock <= 0 ? (
+                                            <button
+                                                disabled
+                                                className="w-full py-4 bg-gray-100 text-gray-400 rounded-xl font-black uppercase tracking-[0.15em] text-[10px] cursor-not-allowed"
+                                            >
+                                                Out of Stock
+                                            </button>
+                                        ) : (product.sizesEG && product.sizesEG.length > 1) ? (
                                             <Link
                                                 to={`/peptides/${product.slug}`}
                                                 className="w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 hover:shadow-orange-500/40 transition-all shadow-xl shadow-orange-500/10 flex items-center justify-center"
@@ -167,10 +179,18 @@ const Peptides: React.FC = () => {
                                         ) : cartItem ? (
                                             <QuantitySelector
                                                 quantity={cartItem.quantity}
-                                                onIncrease={() => setQuantity(product.slug, cartItem.quantity + 1, cartItem.selectedSize)}
+                                                onIncrease={() => {
+                                                    if (cartItem.availableStock !== undefined && cartItem.quantity >= cartItem.availableStock) {
+                                                        showMessage({ variant: 'info', title: 'Stock Limit', message: `Only ${cartItem.availableStock} units available.`, buttonLabel: 'OK' });
+                                                        return;
+                                                    }
+                                                    setQuantity(product.slug, cartItem.quantity + 1, cartItem.selectedSize).catch(err => {
+                                                        showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' });
+                                                    });
+                                                }}
                                                 onDecrease={() => {
                                                     if (cartItem.quantity > 1) {
-                                                        setQuantity(product.slug, cartItem.quantity - 1, cartItem.selectedSize);
+                                                        setQuantity(product.slug, cartItem.quantity - 1, cartItem.selectedSize).catch(err => showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' }));
                                                     } else {
                                                         removeItem(product.slug, cartItem.selectedSize);
                                                     }
@@ -180,7 +200,9 @@ const Peptides: React.FC = () => {
                                         ) : (
                                             <button
                                                 onClick={() => {
-                                                    addItem(product, 1);
+                                                    addItem(product, 1).catch(err => {
+                                                        showMessage({ variant: 'error', title: 'Stock Error', message: err.message, buttonLabel: 'OK' });
+                                                    });
                                                 }}
                                                 className="w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 hover:shadow-orange-500/40 transition-all shadow-xl shadow-orange-500/10"
                                             >

@@ -119,10 +119,20 @@ const Cart: React.FC = () => {
                             <QuantitySelector
                               size="sm"
                               quantity={item.quantity}
-                              onIncrease={() => setQuantity(product.slug, item.quantity + 1, item.selectedSize)}
+                              onIncrease={() => {
+                                if (item.availableStock !== undefined && item.quantity >= item.availableStock) {
+                                  showMessage({ variant: 'info', title: 'Stock Limit', message: `Only ${item.availableStock} units available.`, buttonLabel: 'OK' });
+                                  return;
+                                }
+                                setQuantity(product.slug, item.quantity + 1, item.selectedSize).catch(err => {
+                                  showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' });
+                                });
+                              }}
                               onDecrease={() => {
                                 if (item.quantity > 1) {
-                                  setQuantity(product.slug, item.quantity - 1, item.selectedSize);
+                                  setQuantity(product.slug, item.quantity - 1, item.selectedSize).catch(err => {
+                                    showMessage({ variant: 'error', title: 'Error', message: err.message, buttonLabel: 'OK' });
+                                  });
                                 } else {
                                   removeItem(product.slug, item.selectedSize);
                                 }

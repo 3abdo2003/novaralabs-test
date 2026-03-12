@@ -348,37 +348,63 @@ export default async function handler(req, res) {
   try {
     const client = await clientPromise;
     const db = client.db("NovaraLabs");
-    await db.collection("orders").insertOne(orderData);
 
-    // Update stock levels
-    for (const item of normalizedItems) {
-      if (item.size) {
-        // Find if this specific size variant exists
-        const inventoryItem = await db.collection("inventoryitems").findOne({ slug: item.slug });
-        if (inventoryItem) {
-          const hasVariant = inventoryItem.sizesEG && inventoryItem.sizesEG.some(sz => sz.size === item.size);
-          
-          if (hasVariant) {
-            // Deduct from the specific variant's stock
-            await db.collection("inventoryitems").updateOne(
-              { slug: item.slug, "sizesEG.size": item.size },
-              { $inc: { "sizesEG.$.stock": -item.quantity } }
-            );
-          } else {
-            // Fallback to main stock
-            await db.collection("inventoryitems").updateOne(
-              { slug: item.slug },
-              { $inc: { stock: -item.quantity } }
-            );
-          }
-        }
-      } else {
-        // Fallback to main stock
-        await db.collection("inventoryitems").updateOne(
-          { slug: item.slug },
-          { $inc: { stock: -item.quantity } }
-        );
+    if (promoCode) {
+      const promo = await db.collection("promocodes").findOne({ code: promoCode, isActive: true });
+      if (!promo || (promo.expiryDate && new Date(promo.expiryDate) < new Date())) {
+        return res.status(400).json({ success: false, error: 'Promo code is invalid or expired' });
       }
+    }
+
+    const successfullyDecremented = [];
+
+    try {
+      for (const item of normalizedItems) {
+        let updateResult;
+
+        const inventoryItem = await db.collection("inventoryitems").findOne({ slug: item.slug });
+        if (!inventoryItem) {
+          throw new Error(`Product ${item.name} not found`);
+        }
+
+        const hasVariant = item.size && inventoryItem.sizesEG && inventoryItem.sizesEG.some(sz => sz.size === item.size);
+
+        if (hasVariant) {
+          updateResult = await db.collection("inventoryitems").updateOne(
+            { slug: item.slug, "sizesEG.size": item.size, "sizesEG.stock": { $gte: item.quantity } },
+            { $inc: { "sizesEG.$.stock": -item.quantity } }
+          );
+        } else {
+          updateResult = await db.collection("inventoryitems").updateOne(
+            { slug: item.slug, stock: { $gte: item.quantity } },
+            { $inc: { stock: -item.quantity } }
+          );
+        }
+
+        if (updateResult.modifiedCount === 0) {
+          throw new Error(`Insufficient stock for ${item.name}`);
+        }
+
+        successfullyDecremented.push({ ...item, hasVariant });
+      }
+
+      await db.collection("orders").insertOne(orderData);
+    } catch (err) {
+      // Rollback
+      for (const item of successfullyDecremented) {
+        if (item.hasVariant) {
+          await db.collection("inventoryitems").updateOne(
+            { slug: item.slug, "sizesEG.size": item.size },
+            { $inc: { "sizesEG.$.stock": item.quantity } }
+          );
+        } else {
+          await db.collection("inventoryitems").updateOne(
+            { slug: item.slug },
+            { $inc: { stock: item.quantity } }
+          );
+        }
+      }
+      return res.status(400).json({ success: false, error: 'INSUFFICIENT_STOCK', message: err.message });
     }
 
     await transporter.sendMail({
