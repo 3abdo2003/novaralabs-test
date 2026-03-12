@@ -54,7 +54,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                         name: product.name,
                         slug: product.slug,
                         series: product.series,
-                        price: product.price,
+                        price: product.priceEG,
                     },
                 }),
             });
@@ -118,13 +118,8 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                                 <h2 id="inquiry-title" className="text-lg sm:text-xl font-bold text-black uppercase tracking-tight mt-0.5 break-words">
                                     {product.name}
                                 </h2>
-                                <p className="text-xs sm:text-sm font-medium text-gray-600 mt-1">{product.price}</p>
                             </div>
                         </div>
-                        <FormattedText
-                            text={product.shortDescription}
-                            className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4"
-                        />
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3 sm:space-y-4">

@@ -15,6 +15,27 @@ const Bottle: React.FC<{ label: string, color: string, delay: string, imageSrc: 
 );
 
 const Hero: React.FC = () => {
+  const [images, setImages] = React.useState<{ [key: string]: string }>({});
+
+  React.useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const res = await fetch('/api/products');
+        const json = await res.json();
+        if (json.success && json.data) {
+          const imgMap: { [key: string]: string } = {};
+          json.data.forEach((p: any) => {
+            imgMap[p.slug] = p.image;
+          });
+          setImages(imgMap);
+        }
+      } catch (e) {
+        // Silent fallback
+      }
+    };
+    fetchImages();
+  }, []);
+
   return (
     <section className="hero-split min-h-screen flex items-center pt-32 lg:pt-24 overflow-hidden">
       <div className="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 sm:gap-12 lg:gap-24 relative z-10">
@@ -44,7 +65,7 @@ const Hero: React.FC = () => {
               label="RETATRUTIDE"
               color="#333"
               delay="0.4s"
-              imageSrc="/RETATRUTIDE-removebg-preview.png"
+              imageSrc={images['retatrutide'] || "/hero/RETATRUTIDE-removebg-preview.png"}
               className="absolute -translate-x-1 -rotate-[12deg] z-10 opacity-90 animate-float"
             />
 
@@ -53,7 +74,7 @@ const Hero: React.FC = () => {
               label="CJC-IPAMORELIN"
               color="#1a1a1a"
               delay="0.2s"
-              imageSrc="/CJC-IPAMORELIN-removebg-preview.png"
+              imageSrc={images['cjc-ipamorelin'] || "/hero/CJC-IPAMORELIN-removebg-preview.png"}
               className="absolute rotate-0 z-30 animate-float-delayed"
             />
 
@@ -62,7 +83,7 @@ const Hero: React.FC = () => {
               label="MOTS-C"
               color="#000"
               delay="0s"
-              imageSrc="/MOTS-C-removebg-preview.png"
+              imageSrc={images['mots-c'] || "/hero/MOTS-C-removebg-preview.png"}
               className="absolute translate-x-1 rotate-[12deg] z-10 opacity-90 animate-float"
             />
 

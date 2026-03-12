@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import InquiryModal from '../components/InquiryModal';
 import { useRegion } from '../context/RegionContext';
 import { useCart } from '../context/CartContext';
@@ -9,11 +10,29 @@ import QuantitySelector from '../components/QuantitySelector';
 
 const Peptides: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const [dynamicPeptides, setDynamicPeptides] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { region, setRegion } = useRegion();
     const { addItem, items, setQuantity, removeItem } = useCart();
     const { showMessage } = useMessage();
+
+    useEffect(() => {
+        const fetchPeptides = async () => {
+            try {
+                const res = await fetch('/api/products');
+                const json = await res.json();
+                if (json.success) setDynamicPeptides(json.data);
+                else setDynamicPeptides(peptides); // Fallback to local
+            } catch (e) {
+                setDynamicPeptides(peptides); // Fallback to local
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPeptides();
+    }, []);
 
     const handleInquiry = (product: Product) => {
         setSelectedProduct(product);
@@ -22,14 +41,49 @@ const Peptides: React.FC = () => {
 
     useEffect(() => {
         const inquiry = searchParams.get('inquiry');
-        if (!inquiry) return;
-        const product = findPeptideByName(decodeURIComponent(inquiry));
+        if (!inquiry || loading) return;
+        const product = dynamicPeptides.find(p => p.name === decodeURIComponent(inquiry!)) || findPeptideByName(decodeURIComponent(inquiry));
         if (product) {
             setSelectedProduct(product);
             setIsModalOpen(true);
         }
         setSearchParams({}, { replace: true });
-    }, [searchParams, setSearchParams]);
+    }, [searchParams, setSearchParams, dynamicPeptides, loading]);
+
+    if (loading) return (
+        <div className="bg-white min-h-screen">
+            <div className="pt-28 sm:pt-32 lg:pt-40 px-4 sm:px-6 lg:px-12 pb-16 sm:pb-24 lg:pb-32 max-w-screen-2xl mx-auto">
+                 <div className="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-10 sm:mb-12 lg:mb-20 gap-6 sm:gap-8 text-center lg:text-left animate-pulse">
+                    <div className="max-w-2xl w-full">
+                        <div className="h-4 w-32 bg-gray-100 rounded mb-4"></div>
+                        <div className="h-16 lg:h-24 w-64 bg-gray-100 rounded-xl mb-6"></div>
+                        <div className="h-6 w-full max-w-md bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                        <div key={i} className="bg-gray-50 p-4 sm:p-6 lg:p-10 rounded-2xl border border-gray-100 flex flex-col min-h-[460px] animate-pulse">
+                            <div className="aspect-square bg-white rounded-xl mb-8 flex items-center justify-center overflow-hidden border border-gray-50">
+                                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50"></div>
+                            </div>
+                            <div className="space-y-4 flex-1">
+                                <div className="flex justify-between items-start">
+                                    <div className="space-y-2 w-1/2">
+                                        <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                                        <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                                    </div>
+                                    <div className="h-6 w-16 bg-gray-200 rounded"></div>
+                                </div>
+                            </div>
+                            <div className="mt-8 pt-6 border-t border-gray-100">
+                                <div className="w-full h-[52px] bg-gray-200 rounded-xl"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
 
     return (
         <div className="bg-white min-h-screen">
@@ -64,7 +118,7 @@ const Peptides: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                    {peptides.map((product) => {
+                    {dynamicPeptides.map((product) => {
                         const cartItem = items.find(i => i.product.slug === product.slug);
 
                         return (
@@ -78,8 +132,17 @@ const Peptides: React.FC = () => {
                                 >
                                     <div className="aspect-square bg-white rounded-xl mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.03] transition-all relative p-0">
                                         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent"></div>
-                                        <div className="absolute w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                                        <img src={product.image} alt={product.name} className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]" />
+                                        <img 
+                                          src={product.image || `/products/${product.slug}.png`} 
+                                          alt={product.name} 
+                                          className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]" 
+                                          onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            if (!target.src.includes(`/products/${product.slug}.png`)) {
+                                                target.src = `/products/${product.slug}.png`;
+                                            }
+                                          }}
+                                        />
                                     </div>
 
                                     <div className="space-y-4">
@@ -89,7 +152,7 @@ const Peptides: React.FC = () => {
                                                 <h4 className="text-2xl font-black text-black uppercase tracking-tight">{product.name}</h4>
                                             </div>
                                             <span className="font-black text-black">
-                                                {region === 'EG' ? product.priceEG : product.priceWorldwide}
+                                                {region === 'EG' ? product.priceEG?.replace(/ L\.E/i, 'L.E') : product.priceWorldwide}
                                             </span>
                                         </div>
                                     </div>
@@ -97,7 +160,14 @@ const Peptides: React.FC = () => {
 
                                 <div className="mt-auto pt-6 border-t border-gray-100">
                                     {region === 'EG' ? (
-                                        cartItem ? (
+                                        (product.sizesEG && product.sizesEG.length > 1) ? (
+                                            <Link
+                                                to={`/peptides/${product.slug}`}
+                                                className="w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 hover:shadow-orange-500/40 transition-all shadow-xl shadow-orange-500/10 flex items-center justify-center"
+                                            >
+                                                Select Options
+                                            </Link>
+                                        ) : cartItem ? (
                                             <QuantitySelector
                                                 quantity={cartItem.quantity}
                                                 onIncrease={() => setQuantity(product.slug, cartItem.quantity + 1, cartItem.selectedSize)}
@@ -121,12 +191,21 @@ const Peptides: React.FC = () => {
                                             </button>
                                         )
                                     ) : (
-                                        <button
-                                            onClick={() => handleInquiry(product)}
-                                            className="w-full py-4 bg-zinc-900 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-black transition-all shadow-xl shadow-black/10"
-                                        >
-                                            Send Inquiry
-                                        </button>
+                                        (product.sizesWorldwide && product.sizesWorldwide.length > 1) ? (
+                                            <Link
+                                                to={`/peptides/${product.slug}`}
+                                                className="w-full py-4 bg-zinc-900 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-black transition-all shadow-xl shadow-black/10 flex items-center justify-center"
+                                            >
+                                                Select Options
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleInquiry(product)}
+                                                className="w-full py-4 bg-zinc-900 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-black transition-all shadow-xl shadow-black/10"
+                                            >
+                                                Send Inquiry
+                                            </button>
+                                        )
                                     )}
                                 </div>
                             </div>

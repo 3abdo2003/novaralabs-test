@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import clientPromise from './utils/db.js';
 
 function safeStr(x) {
   return typeof x === 'string' ? x.trim() : '';
@@ -55,6 +56,7 @@ export default async function handler(req, res) {
       name: safeStr(i.name),
       series: safeStr(i.series),
       price: safeStr(i.price),
+      size: safeStr(i.selectedSize || i.size),
       quantity: Number.isFinite(Number(i.quantity)) ? Math.max(1, Math.min(99, Math.round(Number(i.quantity)))) : 1,
     }))
     .filter((i) => i.slug && i.name);
@@ -104,35 +106,68 @@ export default async function handler(req, res) {
     paymentMethod === 'INSTAPAY' ? `Instapay: ${instapayHandle}` : '',
   ].filter(Boolean).join('\n');
 
-  const supportSubject = `New Egypt order: ${orderId}`;
-  const customerSubject = `Novara Labs — Order confirmation (${orderId})`;
+  const promoCode = safeStr(body.promoCode);
+  const discount = Number(body.discount) || 0;
+  const total = Number(body.total) || 0;
+  const subtotal = normalizedItems.reduce((acc, item) => {
+    // Extract number from price string (e.g., "1,200 L.E" -> 1200)
+    const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+    return acc + (priceNum * item.quantity);
+  }, 0);
+
+  const supportSubject = `Order Alert: ${orderId} — ${name}`;
+  const customerSubject = `Invoice for Order #${orderId} — Novara Labs`;
 
   const logoUrl = 'https://novaralabs.eu/logo.png';
 
   const commonStyle = `
     <style>
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
-        .logo { margin-bottom: 40px; }
-        .logo img { height: 60px; width: auto; }
-        .header { margin-bottom: 32px; }
-        .header h1 { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin: 0; }
-        .section { margin-bottom: 32px; padding: 24px; background: #f9f9f9; border-radius: 16px; border: 1px solid #efefef; }
-        .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: #999; margin-bottom: 12px; }
-        .detail-row { margin-bottom: 8px; font-size: 14px; }
-        .detail-label { font-weight: 700; color: #666; width: 100px; display: inline-block; }
-        .item-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; font-size: 14px; }
-        .item-row:last-child { border-bottom: none; }
-        .item-name { font-weight: 700; }
-        .footer { margin-top: 40px; font-size: 12px; color: #999; border-top: 1px solid #efefef; padding-top: 24px; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; background-color: #f9f9f9; }
+        .container { max-width: 600px; margin: 20px auto; padding: 40px; background-color: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; }
+        .logo img { height: 40px; width: auto; display: block; }
+        .invoice-title { text-align: right; }
+        .invoice-title h1 { font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 5px 0; color: #1a1a1a; }
+        .invoice-title p { margin: 0; font-size: 12px; color: #666; font-family: monospace; }
+        
+        .bill-to-section { margin-bottom: 40px; display: flex; justify-content: space-between; }
+        .bill-to-block { width: 48%; font-size: 14px; color: #444; }
+        .section-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #1a1a1a; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+        
+        .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+        .invoice-table th { text-align: left; padding: 12px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #666; border-bottom: 1px solid #1a1a1a; }
+        .invoice-table th.text-right { text-align: right; }
+        .invoice-table th.text-center { text-align: center; }
+        
+        .invoice-table td { padding: 16px 8px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: top; }
+        .invoice-table td.text-right { text-align: right; }
+        .invoice-table td.text-center { text-align: center; }
+        
+        .item-title { font-weight: 700; color: #1a1a1a; display: block; margin-bottom: 2px; }
+        .item-desc { font-size: 12px; color: #666; font-family: monospace; }
+        
+        .totals-section { width: 50%; float: right; margin-bottom: 40px; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: #444; }
+        .total-row.grand-total { border-top: 2px solid #1a1a1a; font-weight: 800; font-size: 18px; color: #1a1a1a; padding-top: 12px; margin-top: 4px; }
+        
+        .clearfix::after { content: ""; clear: both; display: table; }
+        
+        .footer { clear: both; margin-top: 40px; font-size: 12px; color: #666; text-align: center; border-top: 1px dotted #ccc; padding-top: 20px; }
+        .detail-row { margin-bottom: 4px; }
+        .detail-label { font-weight: 600; width: 80px; display: inline-block; }
+        .support-box { background: #f9f9f9; padding: 20px; border-radius: 4px; margin-top: 20px; font-size: 13px; text-align: center; }
     </style>
   `;
 
   const itemsHtml = normalizedItems.map(i => `
-    <div class="item-row">
-        <span><span class="item-name">${i.name}</span> (${i.series}) x${i.quantity}</span>
-        <span>${i.price}</span>
-    </div>
+    <tr>
+        <td>
+            <span class="item-title">${i.name}</span>
+            <span class="item-desc">Variant: ${i.series}${i.size ? ` — ${i.size}` : ''}</span>
+        </td>
+        <td class="text-center">${i.quantity}</td>
+        <td class="text-right">${i.price}</td>
+    </tr>
   `).join('');
 
   const supportHtml = `
@@ -141,29 +176,69 @@ export default async function handler(req, res) {
   <head><meta charset="utf-8">${commonStyle}</head>
   <body>
       <div class="container">
-          <div class="logo"><img src="${logoUrl}" alt="Novara Labs"></div>
-          <div class="header"><h1>New Order: ${orderId}</h1></div>
-          <div class="section">
-              <div class="section-title">Customer Info</div>
-              <div class="detail-row"><span class="detail-label">Name:</span> ${name}</div>
-              <div class="detail-row"><span class="detail-label">Email:</span> ${email}</div>
-              <div class="detail-row"><span class="detail-label">Phone:</span> ${phone}</div>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px;">
+              <tr>
+                  <td><img src="${logoUrl}" alt="Novara Labs" style="height: 40px;"></td>
+                  <td align="right">
+                      <h1 style="margin: 0; font-size: 20px; text-transform: uppercase;">New Order</h1>
+                      <p style="margin: 4px 0 0 0; font-family: monospace; color: #666;"># ${orderId}</p>
+                  </td>
+              </tr>
+          </table>
+
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 30px;">
+              <tr>
+                  <td width="50%" valign="top">
+                      <div class="section-title">Customer Details</div>
+                      <div class="detail-row"><span class="detail-label">Name:</span> ${name}</div>
+                      <div class="detail-row"><span class="detail-label">Email:</span> ${email}</div>
+                      <div class="detail-row"><span class="detail-label">Phone:</span> ${phone}</div>
+                  </td>
+                  <td width="50%" valign="top" align="right">
+                      <div class="section-title" style="text-align: right;">Shipping Information</div>
+                      <div style="font-size: 14px; white-space: pre-wrap; color: #444;">${shippingLines}</div>
+                  </td>
+              </tr>
+          </table>
+
+          <div style="margin-bottom: 30px;">
+              <div class="section-title">Payment Info</div>
+              <div class="detail-row"><span class="detail-label">Method:</span> <strong style="text-transform: uppercase;">${paymentMethod}</strong></div>
+              ${paymentMethod === 'INSTAPAY' ? `<div class="detail-row"><span class="detail-label">Handle:</span> ${instapayHandle}</div>` : ''}
+              ${notes ? `<div class="detail-row" style="margin-top: 10px;"><span class="detail-label" style="display:block; margin-bottom: 4px;">Notes:</span> <div style="font-size: 14px; background: #f9f9f9; padding: 10px; border-left: 3px solid #ccc;">${notes}</div></div>` : ''}
           </div>
-          <div class="section">
-              <div class="section-title">Shipping</div>
-              <div style="font-size: 14px; white-space: pre-wrap;">${shippingLines}</div>
+
+          <table class="invoice-table">
+              <thead>
+                  <tr>
+                      <th>Product Description</th>
+                      <th class="text-center" width="20%">Qty</th>
+                      <th class="text-right" width="25%">Subtotal</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  ${itemsHtml}
+              </tbody>
+          </table>
+          <div class="clearfix">
+             <div class="totals-section">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>EGP ${subtotal.toLocaleString()}</span>
+                </div>
+                ${promoCode ? `
+                <div class="total-row" style="color: #ff6b00;">
+                    <span>Discount (${promoCode})</span>
+                    <span>- EGP ${discount.toLocaleString()}</span>
+                </div>
+                ` : ''}
+                <div class="total-row grand-total">
+                    <span>Total Amount</span>
+                    <span>EGP ${total.toLocaleString()}</span>
+                </div>
+             </div>
           </div>
-          <div class="section">
-              <div class="section-title">Payment</div>
-              <div class="detail-row"><span class="detail-label">Method:</span> ${paymentMethod}</div>
-              ${paymentMethod === 'INSTAPAY' ? `<div class="detail-row"><span class="detail-label">Instapay:</span> ${instapayHandle}</div>` : ''}
-          </div>
-          <div class="section">
-              <div class="section-title">Items</div>
-              ${itemsHtml}
-          </div>
-          ${notes ? `<div class="section"><div class="section-title">Notes</div><div style="font-size: 14px;">${notes}</div></div>` : ''}
-          <div class="footer">&copy; Novara Labs. Middle East Distribution.</div>
+          <div class="footer">Internal Order Notification &copy; Novara Labs. Middle East Distribution.</div>
       </div>
   </body>
   </html>
@@ -175,29 +250,137 @@ export default async function handler(req, res) {
   <head><meta charset="utf-8">${commonStyle}</head>
   <body>
       <div class="container">
-          <div class="logo"><img src="${logoUrl}" alt="Novara Labs"></div>
-          <div class="header"><h1>Order Received</h1></div>
-          <p style="font-size: 15px;">Hi ${name},</p>
-          <p style="font-size: 15px;">We've received your order request. Our team will contact you shortly to confirm availability and finalize shipping.</p>
-          
-          <div class="section">
-              <div class="section-title">Order Summary (${orderId})</div>
-              ${itemsHtml}
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px;">
+              <tr>
+                  <td><img src="${logoUrl}" alt="Novara Labs" style="height: 40px;"></td>
+                  <td align="right">
+                      <h1 style="margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase;">Invoice</h1>
+                      <p style="margin: 4px 0 0 0; font-family: monospace; color: #666;">Date: ${new Date().toLocaleDateString('en-GB')}</p>
+                      <p style="margin: 2px 0 0 0; font-family: monospace; color: #666;">Order #: ${orderId}</p>
+                  </td>
+              </tr>
+          </table>
+
+          <p style="font-size: 15px; margin-bottom: 30px;">
+              Hi <strong>${name.split(' ')[0]}</strong>,<br/>
+              Thank you for your order. This document serves as your official invoice and order confirmation. Our team will contact you shortly to finalize shipping.
+          </p>
+
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 40px;">
+              <tr>
+                  <td width="50%" valign="top">
+                      <div class="section-title">Billed To</div>
+                      <div style="font-size: 14px; color: #444; line-height: 1.5;">
+                          <strong>${name}</strong><br/>
+                          ${email}<br/>
+                          ${phone}
+                      </div>
+                  </td>
+                  <td width="50%" valign="top" align="right">
+                      <div class="section-title" style="text-align: right;">Shipped To</div>
+                      <div style="font-size: 14px; color: #444; line-height: 1.5; white-space: pre-wrap;">${shippingLines}</div>
+                  </td>
+              </tr>
+          </table>
+
+          <table class="invoice-table">
+              <thead>
+                  <tr>
+                      <th>Product Description</th>
+                      <th class="text-center" width="15%">Qty</th>
+                      <th class="text-right" width="25%">Subtotal</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  ${itemsHtml}
+              </tbody>
+          </table>
+
+          <div class="clearfix">
+             <div class="totals-section">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>EGP ${subtotal.toLocaleString()}</span>
+                </div>
+                ${promoCode ? `
+                   <div class="total-row" style="color: #ff6b00;">
+                       <span>Discount (${promoCode})</span>
+                       <span>- EGP ${discount.toLocaleString()}</span>
+                   </div>
+                ` : ''}
+                <div class="total-row grand-total">
+                    <span>Total Amount</span>
+                    <span>EGP ${total.toLocaleString()}</span>
+                </div>
+             </div>
           </div>
 
-          <div class="section">
-              <div class="section-title">Shipping To</div>
-              <div style="font-size: 14px; white-space: pre-wrap;">${shippingLines}</div>
+          <div class="support-box">
+             Payment Method: <strong>${paymentMethod}</strong><br/>
+             ${paymentMethod === 'INSTAPAY' ? `Instapay Handle: <code>${instapayHandle}</code><br/>` : ''}
+             Need assistance? Reply to this email or visit <a href="https://novaralabs.eu" style="color: #ff6b00; text-decoration: none; font-weight: bold;">novaralabs.eu</a>
           </div>
 
-          <p style="font-size: 13px; color: #666;">Need help? Reply to this email or visit <a href="https://novaralabs.eu" style="color: #ff6b00;">novaralabs.eu</a></p>
-          <div class="footer">&copy; Novara Labs. High-performance research compounds.</div>
+          <div class="footer">&copy; ${new Date().getFullYear()} Novara Labs. High-performance research compounds.</div>
       </div>
   </body>
   </html>
   `;
 
+  const orderData = {
+    orderId,
+    region,
+    customer: { name, email, phone },
+    shipping: { address1, address2, city, governorate },
+    payment: {
+      method: paymentMethod,
+      instapayHandle: paymentMethod === 'INSTAPAY' ? instapayHandle : null
+    },
+    items: normalizedItems,
+    notes,
+    promoCode: safeStr(body.promoCode),
+    discount: Number(body.discount) || 0,
+    total: Number(body.total) || 0,
+    status: 'AWAITING_REVIEW',
+    createdAt: new Date(),
+  };
+
   try {
+    const client = await clientPromise;
+    const db = client.db("NovaraLabs");
+    await db.collection("orders").insertOne(orderData);
+
+    // Update stock levels
+    for (const item of normalizedItems) {
+      if (item.size) {
+        // Find if this specific size variant exists
+        const inventoryItem = await db.collection("inventoryitems").findOne({ slug: item.slug });
+        if (inventoryItem) {
+          const hasVariant = inventoryItem.sizesEG && inventoryItem.sizesEG.some(sz => sz.size === item.size);
+          
+          if (hasVariant) {
+            // Deduct from the specific variant's stock
+            await db.collection("inventoryitems").updateOne(
+              { slug: item.slug, "sizesEG.size": item.size },
+              { $inc: { "sizesEG.$.stock": -item.quantity } }
+            );
+          } else {
+            // Fallback to main stock
+            await db.collection("inventoryitems").updateOne(
+              { slug: item.slug },
+              { $inc: { stock: -item.quantity } }
+            );
+          }
+        }
+      } else {
+        // Fallback to main stock
+        await db.collection("inventoryitems").updateOne(
+          { slug: item.slug },
+          { $inc: { stock: -item.quantity } }
+        );
+      }
+    }
+
     await transporter.sendMail({
       from: fromAddress,
       to: supportAddress,

@@ -13,21 +13,27 @@ import ProductValidation from './pages/ProductValidation';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import CartSidebar from './components/CartSidebar';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import InventoryPage from './pages/admin/InventoryPage';
+import OrdersPage from './pages/admin/OrdersPage';
+import PromoCodesPage from './pages/admin/PromoCodesPage';
+import AdminLayout from './components/AdminLayout';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
   const hideChrome = false; // Always show chrome now that home is live
 
   return (
     <div className="min-h-screen bg-white">
-      {!hideChrome && <Navbar />}
+      {!hideChrome && !isAdmin && <Navbar />}
 
       <main>
         {children}
       </main>
-      <CartSidebar />
+      {!isAdmin && <CartSidebar />}
 
-      {!hideChrome && (
+      {!hideChrome && !isAdmin && (
         <footer className="bg-zinc-950 text-white py-12 sm:py-20 px-6 sm:px-12 mt-12 sm:mt-20">
           <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8 sm:gap-12">
             <div className="space-y-4">
@@ -89,6 +95,12 @@ const App: React.FC = () => {
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/validate" element={<ProductValidation />} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
+                <Route path="/admin/inventory" element={<AdminLayout><InventoryPage /></AdminLayout>} />
+                <Route path="/admin/orders" element={<AdminLayout><OrdersPage /></AdminLayout>} />
+                <Route path="/admin/promo-codes" element={<AdminLayout><PromoCodesPage /></AdminLayout>} />
               </Routes>
             </Layout>
           </CartProvider>

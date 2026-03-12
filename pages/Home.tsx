@@ -15,6 +15,38 @@ const Home: React.FC = () => {
         transition: { duration: 0.8, ease: "easeOut" }
     } as const;
 
+    const [featuredProducts, setFeaturedProducts] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchPeptides = async () => {
+            try {
+                const res = await fetch('/api/products');
+                const json = await res.json();
+                if (json.success && json.data.length > 0) {
+                    setFeaturedProducts(json.data.slice(0, 4));
+                } else {
+                    setFeaturedProducts([
+                        { name: 'CJC-IPAMORELIN', series: 'GROWTH', priceWorldwide: '€102.00', image: '/products/CJC-IPAMORELIN-removebg-preview.png', slug: 'cjc-ipamorelin' },
+                        { name: 'MOTS-C', series: 'METABOLIC', priceWorldwide: '€90.00', image: '/products/MOTS-C-removebg-preview.png', slug: 'mots-c' },
+                        { name: 'RETATRUTIDE', series: 'METABOLIC', priceWorldwide: '€95.00', image: '/products/RETATRUTIDE-removebg-preview.png', slug: 'retatrutide' },
+                        { name: 'BPC157_TB500', series: 'REPAIR', priceWorldwide: '€107.00', image: '/products/BPC157_TB500-removebg-preview.png', slug: 'bpc157-tb500' }
+                    ]);
+                }
+            } catch (e) {
+                setFeaturedProducts([
+                    { name: 'CJC-IPAMORELIN', series: 'GROWTH', priceWorldwide: '€102.00', image: '/products/CJC-IPAMORELIN-removebg-preview.png', slug: 'cjc-ipamorelin' },
+                    { name: 'MOTS-C', series: 'METABOLIC', priceWorldwide: '€90.00', image: '/products/MOTS-C-removebg-preview.png', slug: 'mots-c' },
+                    { name: 'RETATRUTIDE', series: 'METABOLIC', priceWorldwide: '€95.00', image: '/products/RETATRUTIDE-removebg-preview.png', slug: 'retatrutide' },
+                    { name: 'BPC157_TB500', series: 'REPAIR', priceWorldwide: '€107.00', image: '/products/BPC157_TB500-removebg-preview.png', slug: 'bpc157-tb500' }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPeptides();
+    }, []);
+
     return (
         <div className="overflow-hidden">
             <Hero />
@@ -82,44 +114,70 @@ const Home: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                        {[
-                            { name: 'CJC-IPAMORELIN', series: 'GROWTH', price: '$78.00', image: '/CJC-IPAMORELIN-removebg-preview.png' },
-                            { name: 'MOTS-C', series: 'METABOLIC', price: '$85.00', image: '/MOTS-C-removebg-preview.png' },
-                            { name: 'RETATRUTIDE', series: 'METABOLIC', price: '$89.00', image: '/RETATRUTIDE-removebg-preview.png' },
-                            { name: 'BPC157_TB500', series: 'REPAIR', price: '$95.00', image: '/BPC157_TB500-removebg-preview.png' }
-                        ].map((product, i) => {
-                            const productData = findPeptideByName(product.name);
-                            const href = productData ? `/peptides/${productData.slug}` : '/peptides';
-
-                            return (
-                                <div key={i} className="group bg-gray-50 p-6 lg:p-10 rounded-2xl border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col">
-                                    <div className="aspect-square bg-white rounded-xl mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.05] transition-all relative p-0">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent"></div>
-                                        <div className="absolute w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                                        <img src={product.image} alt={product.name} className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]" />
+                        {loading ? (
+                            [1, 2, 3, 4].map(i => (
+                                <div key={i} className="bg-gray-50 p-6 lg:p-10 rounded-2xl border border-gray-100 flex flex-col min-h-[420px] animate-pulse">
+                                    <div className="aspect-square bg-white rounded-xl mb-8 flex items-center justify-center overflow-hidden border border-gray-50">
+                                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50"></div>
                                     </div>
-                                    <div className="flex-1 flex flex-col">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div>
-                                                <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">{product.series}</div>
-                                                <h4 className="text-2xl font-black text-black uppercase tracking-tight">{product.name}</h4>
+                                    <div className="space-y-4 flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <div className="space-y-2 w-1/2">
+                                                <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                                                <div className="h-6 w-32 bg-gray-200 rounded"></div>
                                             </div>
-                                            <span className="font-black text-black">
-                                                {region === 'EG' ? (productData?.priceEG || product.price) : (productData?.priceWorldwide || product.price)}
-                                            </span>
+                                            <div className="h-6 w-16 bg-gray-200 rounded"></div>
                                         </div>
-                                        <div className="mt-auto pt-6 border-t border-gray-100">
-                                            <Link
-                                                to={href}
-                                                className="block w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 transition-colors shadow-xl shadow-orange-500/5 text-center"
-                                            >
-                                                View product
-                                            </Link>
-                                        </div>
+                                    </div>
+                                    <div className="mt-8 pt-6 border-t border-gray-100">
+                                        <div className="w-full h-[52px] bg-gray-200 rounded-xl"></div>
                                     </div>
                                 </div>
-                            )
-                        })}
+                            ))
+                        ) : (
+                            featuredProducts.map((product, i) => {
+                                const href = `/peptides/${product.slug}`;
+
+                                return (
+                                    <div key={i} className="group bg-gray-50 p-6 lg:p-10 rounded-2xl border border-gray-100 hover:border-black/10 hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col">
+                                        <div className="aspect-square bg-white rounded-xl mb-8 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.05] transition-all relative p-0">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent"></div>
+                                            <div className="absolute w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                                            <img 
+                                              src={product.image || `/products/${product.slug}.png`} 
+                                              alt={product.name} 
+                                              className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]" 
+                                              onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                if (!target.src.includes(`/products/${product.slug}.png`)) {
+                                                    target.src = `/products/${product.slug}.png`;
+                                                }
+                                              }}
+                                            />
+                                        </div>
+                                        <div className="flex-1 flex flex-col">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">{product.series}</div>
+                                                    <h4 className="text-2xl font-black text-black uppercase tracking-tight">{product.name}</h4>
+                                                </div>
+                                                <span className="font-black text-black">
+                                                    {region === 'EG' ? (product.priceEG?.replace(' L.E', 'L.E') || product.priceWorldwide) : product.priceWorldwide}
+                                                </span>
+                                            </div>
+                                            <div className="mt-auto pt-6 border-t border-gray-100">
+                                                <Link
+                                                    to={href}
+                                                    className="block w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 transition-colors shadow-xl shadow-orange-500/5 text-center"
+                                                >
+                                                    View product
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        )}
                     </div>
                 </div>
             </motion.section>

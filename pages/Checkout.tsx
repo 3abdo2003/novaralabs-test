@@ -16,13 +16,27 @@ const Checkout: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD');
+  
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number; type: string } | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
 
-  const subtotal = items.reduce((sum, i) => {
+  const subtotal = useMemo(() => items.reduce((sum, i) => {
     const pStr = region === 'EG' ? (i.selectedPrice || i.product.priceEG) : i.product.priceWorldwide;
     const p = parsePrice(pStr);
     if (p == null) return sum;
     return sum + p * i.quantity;
-  }, 0);
+  }, 0), [items, region]);
+
+  const discountAmount = useMemo(() => {
+    if (!appliedPromo) return 0;
+    if (appliedPromo.type === 'PERCENTAGE') {
+      return subtotal * (appliedPromo.discount / 100);
+    }
+    return appliedPromo.discount;
+  }, [subtotal, appliedPromo]);
+
+  const total = subtotal - discountAmount;
 
   if (region !== 'EG') {
     return (
@@ -134,6 +148,9 @@ const Checkout: React.FC = () => {
                     method: paymentMethod,
                   },
                   notes,
+                  promoCode: appliedPromo?.code || null,
+                  discount: discountAmount,
+                  total: total,
                   items: items.map((i) => ({
                     slug: i.product.slug,
                     name: i.product.name,
@@ -372,10 +389,62 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-6 border-t border-white/5">
-                  <div className="flex items-center justify-between">
+                <div className="space-y-4 pt-6 border-t border-white/5">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Promo Code</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={promoInput}
+                        onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                        placeholder="ENTER CODE"
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-white uppercase focus:outline-none focus:border-orange-500/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!promoInput || isValidatingPromo) return;
+                          try {
+                            setIsValidatingPromo(true);
+                            const res = await fetch('/api/validate-promo', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ code: promoInput })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                              setAppliedPromo({ code: promoInput, discount: data.discount, type: data.type });
+                              showMessage({ variant: 'success', title: 'Code Applied', message: `You saved ${data.type === 'PERCENTAGE' ? `${data.discount}%` : `${data.discount} L.E`}`, buttonLabel: 'Great' });
+                            } else {
+                              setAppliedPromo(null);
+                              showMessage({ variant: 'error', title: 'Invalid Code', message: data.error || 'Code not found', buttonLabel: 'OK' });
+                            }
+                          } catch (err) {
+                            console.error(err);
+                          } finally {
+                            setIsValidatingPromo(false);
+                          }
+                        }}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {appliedPromo && (
+                      <div className="flex items-center justify-between text-[10px] font-bold text-orange-500">
+                        <span className="uppercase tracking-widest">Discount ({appliedPromo.code})</span>
+                        <span>-{appliedPromo.type === 'PERCENTAGE' ? `${appliedPromo.discount}%` : `${appliedPromo.discount} L.E`}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Subtotal</span>
-                    <span className="text-lg font-bold">{subtotal > 0 ? (region === 'EG' ? `${subtotal.toLocaleString()}L.E` : `€${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`) : '—'}</span>
+                    <span className="text-sm font-bold text-white/60">{subtotal > 0 ? (region === 'EG' ? `${subtotal.toLocaleString()}L.E` : `€${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`) : '—'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Total</span>
+                    <span className="text-xl font-bold">{total > 0 ? (region === 'EG' ? `${total.toLocaleString()}L.E` : `€${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`) : '—'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Shipping</span>

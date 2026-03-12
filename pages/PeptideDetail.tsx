@@ -12,6 +12,8 @@ const PeptideDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { region } = useRegion();
   const { addItem, items, setQuantity, removeItem } = useCart();
@@ -20,25 +22,60 @@ const PeptideDetail: React.FC = () => {
 
   useEffect(() => {
     if (!slug) return;
-    const found = findPeptideBySlug(slug);
-    if (!found) {
-      navigate('/peptides', { replace: true });
-      return;
-    }
-    setProduct(found);
+    
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/products');
+        const json = await res.json();
+        
+        let productsList = peptides;
+        if (json.success) {
+           productsList = json.data;
+        }
+        setAllProducts(productsList);
+        
+        const found = productsList.find((p: Product) => p.slug === slug) || findPeptideBySlug(slug);
+        if (!found) {
+          navigate('/peptides', { replace: true });
+        } else {
+          setProduct(found);
+        }
+      } catch (e) {
+        console.error(e);
+        const found = findPeptideBySlug(slug);
+        if (!found) navigate('/peptides', { replace: true });
+        else setProduct(found);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProducts();
   }, [slug, navigate]);
 
   useEffect(() => {
     if (!product) return;
 
-    if (product.sizesEG && product.sizesEG.length > 0) {
+    if (region === 'EG' && product.sizesEG && product.sizesEG.length > 0) {
       setSelectedSize(product.sizesEG[0].size);
       setSelectedPrice(product.sizesEG[0].price);
+    } else if (region === 'WORLDWIDE' && product.sizesWorldwide && product.sizesWorldwide.length > 0) {
+      setSelectedSize(product.sizesWorldwide[0].size);
+      setSelectedPrice(product.sizesWorldwide[0].price);
     } else {
-      setSelectedSize(product.size);
-      setSelectedPrice(product.priceEG);
+      setSelectedSize(product.size || '');
+      setSelectedPrice(region === 'EG' ? product.priceEG : product.priceWorldwide);
     }
   }, [product, region]);
+
+  if (loading) {
+    return (
+        <div className="bg-white min-h-screen flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-zinc-100 border-t-orange-500 rounded-full animate-spin"></div>
+        </div>
+    );
+  }
 
   if (!product) {
     return null;
@@ -47,12 +84,13 @@ const PeptideDetail: React.FC = () => {
   const cartItem = items.find((i) => i.product.slug === product.slug && (region !== 'EG' || i.selectedSize === selectedSize));
 
   const relatedProducts = (() => {
-    const sameSeries = peptides.filter(
+    const listToUse = allProducts.length > 0 ? allProducts : peptides;
+    const sameSeries = listToUse.filter(
       (p) => p.slug !== product.slug && p.series === product.series,
     );
     if (sameSeries.length >= 3) return sameSeries.slice(0, 3);
 
-    const others = peptides.filter(
+    const others = listToUse.filter(
       (p) => p.slug !== product.slug && p.series !== product.series,
     );
 
@@ -75,9 +113,15 @@ const PeptideDetail: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent" />
             <div className="absolute w-64 h-64 lg:w-80 lg:h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-60" />
             <img
-              src={product.image}
+              src={product.image || `/products/${product.slug}.png`}
               alt={product.name}
               className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes(`/products/${product.slug}.png`)) {
+                    target.src = `/products/${product.slug}.png`;
+                }
+              }}
             />
           </div>
 
@@ -104,7 +148,7 @@ const PeptideDetail: React.FC = () => {
                 <div className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-1">
                   Size
                 </div>
-                <div className="text-base sm:text-lg font-semibold text-black">{region === 'EG' ? selectedSize : product.size}</div>
+                <div className="text-base sm:text-lg font-semibold text-black">{selectedSize}</div>
               </div>
             </div>
 
@@ -115,6 +159,31 @@ const PeptideDetail: React.FC = () => {
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {product.sizesEG.map((s) => (
+                    <button
+                      key={s.size}
+                      onClick={() => {
+                        setSelectedSize(s.size);
+                        setSelectedPrice(s.price);
+                      }}
+                      className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${selectedSize === s.size
+                        ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg shadow-zinc-900/10'
+                        : 'bg-white text-zinc-500 border-gray-100 hover:border-gray-300'
+                        }`}
+                    >
+                      {s.size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {region === 'WORLDWIDE' && product.sizesWorldwide && product.sizesWorldwide.length > 0 && (
+              <div className="space-y-4">
+                <h2 className="text-xs font-black tracking-[0.25em] text-gray-400 uppercase">
+                  Select Dosage
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {product.sizesWorldwide.map((s) => (
                     <button
                       key={s.size}
                       onClick={() => {
@@ -223,9 +292,15 @@ const PeptideDetail: React.FC = () => {
                     <div className="aspect-square bg-white rounded-xl mb-6 flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner relative group-hover:scale-[1.03] transition-all">
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent" />
                       <img
-                        src={rp.image}
+                        src={rp.image || `/products/${rp.slug}.png`}
                         alt={rp.name}
                         className="relative z-10 w-full h-full object-contain scale-[1.3]"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (!target.src.includes(`/products/${rp.slug}.png`)) {
+                              target.src = `/products/${rp.slug}.png`;
+                          }
+                        }}
                       />
                     </div>
                     <div className="space-y-3">
