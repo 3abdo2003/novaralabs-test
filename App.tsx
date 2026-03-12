@@ -82,19 +82,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
-  // Global subdomain check for homepage
-  useEffect(() => {
-    const hostname = window.location.hostname;
-    const isMainDomain = hostname === 'novarlabs-copy.vercel.app';
-    const isAdminSubdomain = hostname === 'admin.novarlabs-copy.vercel.app';
-    const path = window.location.pathname;
-
-    // If on admin subdomain but visiting main content, redirect to main domain
-    if (isAdminSubdomain && !path.startsWith('/admin')) {
-      window.location.href = `https://novarlabs-copy.vercel.app${path}${window.location.search}`;
-    }
-  }, []);
-
   return (
     <Router>
       <MessageProvider>
