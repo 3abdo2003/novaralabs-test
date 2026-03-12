@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Plus, History, Download, ChevronRight, Loader2, AlertCircle, CheckCircle2, Search, ExternalLink, Calendar, Clock, Package, X } from 'lucide-react';
+import { QrCode, Plus, History, Download, ChevronRight, Loader2, AlertCircle, CheckCircle2, Search, ExternalLink, Calendar, Clock, Package, X, Trash2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import jsPDF from 'jspdf';
 
@@ -32,6 +32,8 @@ const QRGeneratorPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
     const [viewingBatch, setViewingBatch] = useState<QRBatch | null>(null);
+    const [deleteBatch, setDeleteBatch] = useState<QRBatch | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
     // Form state
@@ -39,13 +41,13 @@ const QRGeneratorPage: React.FC = () => {
     const [generationCount, setGenerationCount] = useState(10);
 
     useEffect(() => {
-        if (viewingBatch) {
+        if (viewingBatch || deleteBatch) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
         }
         return () => { document.body.style.overflow = ''; };
-    }, [viewingBatch]);
+    }, [viewingBatch, deleteBatch]);
 
     useEffect(() => {
         fetchInitialData();
@@ -122,6 +124,25 @@ const QRGeneratorPage: React.FC = () => {
         }
     };
 
+    const handleDeleteBatch = async (batchId: string) => {
+        setIsDeleting(true);
+        try {
+            const res = await fetch(`/api/admin/qrcodes?batchId=${batchId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+            });
+            const json = await res.json();
+            if (json.success) {
+                setDeleteBatch(null);
+                fetchInitialData();
+            }
+        } catch (error) {
+            console.error('Failed to delete batch:', error);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     const generatePDF = async (batchId: string, productName: string) => {
         setIsGenerating(true); // Show loader during PDF prep
         try {
@@ -136,8 +157,8 @@ const QRGeneratorPage: React.FC = () => {
             // Temporary state to render QR codes in DOM for capture
             setSelectedBatchTokens(tokens);
             
-            // Wait for DOM to update
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Wait for DOM to update and render SVGs
+            await new Promise(resolve => setTimeout(resolve, 800));
 
             const pdf = new jsPDF('p', 'mm', 'a4');
             const cardWidth = 45;
@@ -210,7 +231,11 @@ const QRGeneratorPage: React.FC = () => {
                             reject(err);
                         }
                     };
-                    img.onerror = reject;
+                    img.onerror = () => {
+                        console.error('Failed to load SVG for token', t.token);
+                        // Resolve anyway to continue the batch instead of crashing the whole PDF
+                        resolve(false); 
+                    };
                     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
                 });
             }
@@ -352,12 +377,21 @@ const QRGeneratorPage: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-4 sm:px-8 py-4 sm:py-6 border-b border-zinc-50 text-right">
-                                                <button 
-                                                    onClick={() => fetchBatchDetails(batch)}
-                                                    className="inline-flex items-center gap-1 sm:gap-2 text-zinc-900 bg-white border border-zinc-200 px-3 sm:px-4 py-2 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:border-zinc-900 transition-all shadow-sm"
-                                                >
-                                                    <span className="hidden sm:inline">Analysis</span> <ChevronRight className="w-3 h-3" />
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button 
+                                                        onClick={() => fetchBatchDetails(batch)}
+                                                        className="inline-flex items-center gap-1 sm:gap-2 text-zinc-900 bg-white border border-zinc-200 px-3 sm:px-4 py-2 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:border-zinc-900 transition-all shadow-sm"
+                                                    >
+                                                        <span className="hidden sm:inline">Analysis</span> <ChevronRight className="w-3 h-3" />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setDeleteBatch(batch)}
+                                                        className="p-2 sm:p-2.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                        title="Delete Batch"
+                                                    >
+                                                        <Trash2 className="w-4 sm:w-4 h-4 sm:h-4" />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -503,6 +537,38 @@ const QRGeneratorPage: React.FC = () => {
                             <CheckCircle2 className="w-4 h-4 text-white" />
                         </div>
                         <p className="text-sm font-bold tracking-tight uppercase tracking-widest text-[10px]">Batch Successfully Engraved</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Deletion Confirmation Modal */}
+            {deleteBatch && (
+                <div className="fixed inset-0 bg-red-950/20 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-red-100 flex flex-col p-8 animate-in zoom-in-95 duration-300">
+                        <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mb-6">
+                            <Trash2 className="w-6 h-6 text-red-500" />
+                        </div>
+                        <h3 className="text-lg font-bold text-zinc-900 mb-2">Purge Generation Batch?</h3>
+                        <p className="text-zinc-500 text-xs mb-8 leading-relaxed font-medium">
+                            Are you sure you want to delete this batch of <span className="font-bold text-zinc-900">{deleteBatch.count}</span> authenticators for <span className="font-bold text-zinc-900">{deleteBatch.productName}</span>? This action is <span className="text-red-600 font-bold uppercase tracking-wider">irreversible</span> and will immediately block access for any unused codes within this set.
+                        </p>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => setDeleteBatch(null)}
+                                disabled={isDeleting}
+                                className="flex-1 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={() => handleDeleteBatch(deleteBatch._id)}
+                                disabled={isDeleting}
+                                className="flex-1 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-red-500 text-white shadow-lg shadow-red-200 hover:bg-red-600 transition-all flex items-center justify-center gap-2"
+                            >
+                                {isDeleting && <Loader2 className="w-3 h-3 animate-spin text-white" />}
+                                Shred Batch
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
