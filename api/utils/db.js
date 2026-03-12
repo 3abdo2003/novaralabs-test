@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://abdulsamea2003:Abdo%402003@novaralabscluster.hmus7y7.mongodb.net/";
+const uri = process.env.MONGODB_URI;
 const options = {
   connectTimeoutMS: 10000,
   socketTimeoutMS: 45000,
@@ -9,8 +9,8 @@ const options = {
 let client;
 let clientPromise;
 
-if (!process.env.MONGODB_URI && !uri) {
-  throw new Error('Please add your Mongo URI to .env');
+if (!uri) {
+  throw new Error('CRITICAL: MONGODB_URI environment variable is missing.');
 }
 
 if (process.env.NODE_ENV === 'development') {
