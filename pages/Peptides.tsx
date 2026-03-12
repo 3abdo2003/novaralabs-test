@@ -60,22 +60,22 @@ const Peptides: React.FC = () => {
                         <div className="h-6 w-full max-w-md bg-gray-100 rounded"></div>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                        <div key={i} className="bg-gray-50 p-4 sm:p-6 lg:p-10 rounded-2xl border border-gray-100 flex flex-col min-h-[460px] animate-pulse">
-                            <div className="aspect-square bg-white rounded-xl mb-8 flex items-center justify-center overflow-hidden border border-gray-50">
+                        <div key={i} className="bg-gray-50 p-3 sm:p-6 lg:p-10 rounded-2xl border border-gray-100 flex flex-col min-h-[300px] sm:min-h-[460px] animate-pulse">
+                            <div className="aspect-square bg-white rounded-xl mb-4 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50">
                                 <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50"></div>
                             </div>
                             <div className="space-y-4 flex-1">
-                                <div className="flex justify-between items-start">
-                                    <div className="space-y-2 w-1/2">
-                                        <div className="h-3 w-16 bg-gray-200 rounded"></div>
-                                        <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+                                    <div className="space-y-2 w-full sm:w-1/2">
+                                        <div className="h-2 w-12 bg-gray-200 rounded"></div>
+                                        <div className="h-5 w-24 bg-gray-200 rounded"></div>
                                     </div>
-                                    <div className="h-6 w-16 bg-gray-200 rounded"></div>
+                                    <div className="h-5 w-12 bg-gray-200 rounded"></div>
                                 </div>
                             </div>
-                            <div className="mt-8 pt-6 border-t border-gray-100">
+                            <div className="mt-8 pt-6 border-t border-gray-100 hidden sm:block">
                                 <div className="w-full h-[52px] bg-gray-200 rounded-xl"></div>
                             </div>
                         </div>

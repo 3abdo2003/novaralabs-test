@@ -340,7 +340,8 @@ const InventoryPage: React.FC = () => {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar bg-zinc-50/50">
+            <form id="inventory-form" onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 bg-zinc-50/50">
+              <div className="p-4 sm:p-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
               
               {/* Core Information Card */}
               <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm space-y-6">
@@ -575,24 +576,24 @@ const InventoryPage: React.FC = () => {
                   />
                 </div>
               </div>
-
-              <div className="pt-4 sticky bottom-0 bg-white border-t border-zinc-100 px-6 py-4 -mx-4 sm:-mx-8">
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting} 
-                  className="w-full bg-zinc-900 text-white p-5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-zinc-300/50 flex items-center justify-center gap-3 hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:opacity-50"
-                  style={{ transform: "translateZ(0)" }}
-                >
-                  {isSubmitting ? (
-                      <><Loader2 className="w-5 h-5 animate-spin" /> SYNCHRONIZING...</>
-                  ) : editingItem ? (
-                      'Synchronize Record'
-                  ) : (
-                      'Deploy Master Entry'
-                  )}
-                </button>
-              </div>
             </form>
+
+            <div className="bg-white border-t border-zinc-100 px-6 py-4 sm:px-10 sm:py-6">
+              <button 
+                type="submit" 
+                form="inventory-form"
+                disabled={isSubmitting} 
+                className="w-full bg-zinc-900 text-white p-4 sm:p-5 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-zinc-300/50 flex items-center justify-center gap-3 hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> SYNCHRONIZING...</>
+                ) : editingItem ? (
+                    'Synchronize Record'
+                ) : (
+                    'Deploy Master Entry'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

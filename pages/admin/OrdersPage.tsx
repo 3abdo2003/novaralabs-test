@@ -509,9 +509,9 @@ const OrdersPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-4 sm:p-10 space-y-6 sm:space-y-10 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-10 space-y-8 sm:space-y-10">
               {/* Status Manager */}
-              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 sm:p-6 flex flex-col items-stretch sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
                   {isUpdatingStatus && (
                       <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10 flex items-center justify-center animate-in fade-in duration-300">
                           <div className="flex items-center gap-3">
@@ -528,47 +528,47 @@ const OrdersPage: React.FC = () => {
                     <h3 className="text-[10px] font-black text-zinc-900 uppercase tracking-widest mb-1">Customer Notification Hub</h3>
                     <p className="text-[10px] font-medium text-zinc-400 uppercase">Auto-notify users about status changes</p>
                  </div>
-                 <div className="flex items-center gap-3">
-                    {selectedOrder.status === 'AWAITING_REVIEW' ? (
-                        <>
-                            <button
-                                disabled={isUpdatingStatus}
-                                onClick={() => handleStatusUpdate(selectedOrder, 'REJECTED')}
-                                className="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-zinc-50 text-zinc-400 hover:text-red-500 hover:bg-red-50/50 border border-zinc-100 transition-all"
-                            >
-                                Reject Order
-                            </button>
-                            <button
-                                disabled={isUpdatingStatus}
-                                onClick={() => handleStatusUpdate(selectedOrder, 'PENDING')}
-                                className="px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-orange-500 text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all flex items-center gap-2"
-                            >
-                                Accept Order
-                            </button>
-                        </>
-                    ) : (
-                        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-100 shadow-sm">
-                            {['SHIPPED', 'COMPLETED'].map((s) => {
-                                const isTarget = selectedOrder.status === s;
-                                
-                                return (
-                                    <button
-                                        key={s}
-                                        disabled={isUpdatingStatus || (s === 'SHIPPED' && selectedOrder.status === 'COMPLETED')}
-                                        onClick={() => handleStatusUpdate(selectedOrder, s)}
-                                        className={`px-6 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                                            isTarget 
-                                            ? 'bg-zinc-900 text-white shadow-lg shadow-zinc-200'
-                                            : ((s === 'SHIPPED' && selectedOrder.status === 'COMPLETED') ? 'text-zinc-200 cursor-not-allowed opacity-50' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50')
-                                        }`}
-                                    >
-                                        {s}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    )}
-                 </div>
+                 <div className="flex items-center gap-3 flex-wrap">
+                     {selectedOrder.status === 'AWAITING_REVIEW' ? (
+                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                             <button
+                                 disabled={isUpdatingStatus}
+                                 onClick={() => handleStatusUpdate(selectedOrder, 'REJECTED')}
+                                 className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-zinc-50 text-zinc-400 hover:text-red-500 hover:bg-red-50/50 border border-zinc-100 transition-all text-center"
+                             >
+                                 Reject Order
+                             </button>
+                             <button
+                                 disabled={isUpdatingStatus}
+                                 onClick={() => handleStatusUpdate(selectedOrder, 'PENDING')}
+                                 className="w-full sm:w-auto px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-orange-500 text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all flex items-center justify-center gap-2"
+                             >
+                                 Accept Order
+                             </button>
+                         </div>
+                     ) : (
+                         <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-100 shadow-sm overflow-x-auto">
+                             {['SHIPPED', 'COMPLETED'].map((s) => {
+                                 const isTarget = selectedOrder.status === s;
+                                 
+                                 return (
+                                     <button
+                                         key={s}
+                                         disabled={isUpdatingStatus || (s === 'SHIPPED' && selectedOrder.status === 'COMPLETED')}
+                                         onClick={() => handleStatusUpdate(selectedOrder, s)}
+                                         className={`px-6 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                                             isTarget 
+                                             ? 'bg-zinc-900 text-white shadow-lg shadow-zinc-200'
+                                             : ((s === 'SHIPPED' && selectedOrder.status === 'COMPLETED') ? 'text-zinc-200 cursor-not-allowed opacity-50' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50')
+                                         }`}
+                                     >
+                                         {s}
+                                     </button>
+                                 );
+                             })}
+                         </div>
+                     )}
+                  </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12">
