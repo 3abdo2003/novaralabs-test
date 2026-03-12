@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, ImageIcon, Hash, AlertCircle, Loader2, DollarSign, Info, Package, CheckCircle2, X, Tag } from 'lucide-react';
+import ProductImage from '../../components/ProductImage';
 
 interface Product {
   _id?: string;
@@ -10,6 +11,7 @@ interface Product {
   stock: number;
   slug: string;
   image: string;
+  imagePath?: string;
   sizesEG?: { size: string; price: string; stock?: number }[];
   sizesWorldwide?: { size: string; price: string }[];
   description: string;
@@ -467,7 +469,7 @@ const InventoryPage: React.FC = () => {
                                }}
                              />
                           </div>
-                          <button 
+                          <button
                             type="button"
                             onClick={() => {
                               const newSizes = formData.sizesEG!.filter((_, i) => i !== idx);
@@ -480,70 +482,70 @@ const InventoryPage: React.FC = () => {
                           </button>
                         </div>
                       ))}
-                  </div>
-                  
-                  {/* WORLDWIDE MARKET SECTION */}
-                  <div className="mt-3 sm:mt-8">
+                    </div>
+
+                    {/* WORLDWIDE MARKET SECTION */}
+                    <div className="mt-3 sm:mt-8">
                       <div className="flex items-center justify-between mb-2">
-                          <div className="text-[10px] font-bold text-zinc-400 tracking-wider uppercase bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-100 flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-indigo-500/20"></span> WORLDWIDE
-                          </div>
-                          <button 
-                            type="button"
-                            onClick={() => setFormData(p => ({ ...p, sizesWorldwide: [...(p.sizesWorldwide || []), { size: '', price: '' }] }))}
-                            className="text-zinc-400 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
-                          >
-                            <Plus className="w-3 h-3" /> Add
-                          </button>
+                        <div className="text-[10px] font-bold text-zinc-400 tracking-wider uppercase bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-100 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-indigo-500/20"></span> WORLDWIDE
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setFormData(p => ({ ...p, sizesWorldwide: [...(p.sizesWorldwide || []), { size: '', price: '' }] }))}
+                          className="text-zinc-400 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
+                        >
+                          <Plus className="w-3 h-3" /> Add
+                        </button>
                       </div>
                       <div className="bg-zinc-50/50 p-2 sm:p-4 rounded-xl border border-zinc-100 space-y-2">
-                          {(formData.sizesWorldwide || []).map((sz, idx) => (
-                            <div key={idx} className="flex flex-row gap-2 items-end bg-white p-2 rounded-xl border border-zinc-100 shadow-sm relative group">
-                              <div className="flex-1 min-w-0 space-y-1">
-                                 {idx === 0 && <label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Size</label>}
+                        {(formData.sizesWorldwide || []).map((sz, idx) => (
+                          <div key={idx} className="flex flex-row gap-2 items-end bg-white p-2 rounded-xl border border-zinc-100 shadow-sm relative group">
+                            <div className="flex-1 min-w-0 space-y-1">
+                              {idx === 0 && <label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Size</label>}
+                              <input
+                                className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-300"
+                                placeholder="10mg/vial"
+                                value={sz.size}
+                                onChange={e => {
+                                  const newSizes = [...formData.sizesWorldwide!];
+                                  newSizes[idx].size = e.target.value;
+                                  setFormData({ ...formData, sizesWorldwide: newSizes });
+                                }}
+                                required
+                            />
+                            </div>
+                            <div className="flex-1 min-w-0 space-y-1">
+                               {idx === 0 && <label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Price (€)</label>}
+                               <div className="relative flex items-center">
                                  <input 
-                                   className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-300"
-                                   placeholder="10mg/vial"
-                                   value={sz.size}
+                                   className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-300 pl-5"
+                                   placeholder="120.00"
+                                   value={sz.price.replace(/€/g, '').replace(/\$/g, '').trim()}
                                    onChange={e => {
                                      const newSizes = [...formData.sizesWorldwide!];
-                                     newSizes[idx].size = e.target.value;
-                                     setFormData({ ...formData, sizesWorldwide: newSizes });
+                                     const val = e.target.value ? `€${e.target.value}` : '';
+                                     newSizes[idx].price = val;
+                                     setFormData({ ...formData, sizesWorldwide: newSizes, priceWorldwide: idx === 0 ? val : formData.priceWorldwide });
                                    }}
                                    required
                                  />
-                              </div>
-                              <div className="flex-1 min-w-0 space-y-1">
-                                 {idx === 0 && <label className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Price (€)</label>}
-                                 <div className="relative flex items-center">
-                                   <input 
-                                     className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-300 pl-5"
-                                     placeholder="120.00"
-                                     value={sz.price.replace(/€/g, '').replace(/\$/g, '').trim()}
-                                     onChange={e => {
-                                       const newSizes = [...formData.sizesWorldwide!];
-                                       const val = e.target.value ? `€${e.target.value}` : '';
-                                       newSizes[idx].price = val;
-                                       setFormData({ ...formData, sizesWorldwide: newSizes, priceWorldwide: idx === 0 ? val : formData.priceWorldwide });
-                                     }}
-                                     required
-                                   />
-                                   <span className="absolute left-2 text-[10px] font-bold text-zinc-400 pointer-events-none">€</span>
-                                 </div>
-                              </div>
-                              <button 
-                                type="button"
-                                onClick={() => {
-                                  const newSizes = formData.sizesWorldwide!.filter((_, i) => i !== idx);
-                                  setFormData({ ...formData, sizesWorldwide: newSizes });
-                                }}
-                                className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100 flex-shrink-0"
-                                title="Remove"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                                 <span className="absolute left-2 text-[10px] font-bold text-zinc-400 pointer-events-none">€</span>
+                               </div>
                             </div>
-                          ))}
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const newSizes = formData.sizesWorldwide!.filter((_, i) => i !== idx);
+                                setFormData({ ...formData, sizesWorldwide: newSizes });
+                              }}
+                              className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100 flex-shrink-0"
+                              title="Remove"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                   </div>
                 </div>

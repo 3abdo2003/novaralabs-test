@@ -5,6 +5,7 @@ export interface Product {
   priceEG?: string;
   priceWorldwide?: string;
   image: string;
+  imagePath?: string;
   description: string;
   shortDescription?: string;
   size?: string;

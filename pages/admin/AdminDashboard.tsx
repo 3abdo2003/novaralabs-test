@@ -198,11 +198,16 @@ const AdminDashboard: React.FC = () => {
     { label: 'Maximum', value: 'all' }
   ];
 
-  const showLoader = loading || isRefreshing;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+      <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">Initializing Command Center...</p>
+    </div>
+  );
 
   return (
     <div className="relative p-4 sm:p-8 pb-20 space-y-6 sm:space-y-8 min-h-screen">
-      {showLoader && <FullPageLoader />}
+      {isRefreshing && <FullPageLoader />}
       
       <header className="flex flex-col sm:flex-row justify-between items-start gap-6">
         <div>

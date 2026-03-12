@@ -286,12 +286,16 @@ const OrdersPage: React.FC = () => {
     }
   };
 
-  const showLoader = loading || (fetchingMore && orders.length === 0);
+  if (loading && orders.length === 0) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+      <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">Initializing Fulfillment Hub...</p>
+    </div>
+  );
 
   return (
     <>
       <div className="p-4 sm:p-8 pb-20 relative min-h-screen">
-      {showLoader && <FullPageLoader />}
       
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div>

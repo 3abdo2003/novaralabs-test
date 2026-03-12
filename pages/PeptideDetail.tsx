@@ -7,6 +7,7 @@ import { useMessage } from '../context/MessageContext';
 import { findPeptideBySlug, peptides, type Product } from '../products';
 import QuantitySelector from '../components/QuantitySelector';
 import FormattedText from '../components/FormattedText';
+import ProductImage from '../components/ProductImage';
 
 const PeptideDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -112,16 +113,12 @@ const PeptideDetail: React.FC = () => {
           <div className="aspect-square bg-gray-50 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner relative p-0">
             <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent" />
             <div className="absolute w-64 h-64 lg:w-80 lg:h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full blur-3xl opacity-60" />
-            <img
-              src={product.image || `/products/${product.slug}.png`}
+            <ProductImage
+              src={product.image}
+              imagePath={product.imagePath}
+              fallbackSlug={product.slug}
               alt={product.name}
               className="relative z-10 w-full h-full object-contain scale-[1.4] lg:scale-[1.6]"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (!target.src.includes(`/products/${product.slug}.png`)) {
-                    target.src = `/products/${product.slug}.png`;
-                }
-              }}
             />
           </div>
 
@@ -291,16 +288,12 @@ const PeptideDetail: React.FC = () => {
                   <Link to={`/peptides/${rp.slug}`} className="flex-1 flex flex-col">
                     <div className="aspect-square bg-white rounded-xl mb-6 flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner relative group-hover:scale-[1.03] transition-all">
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent" />
-                      <img
-                        src={rp.image || `/products/${rp.slug}.png`}
+                      <ProductImage
+                        src={rp.image}
+                        imagePath={rp.imagePath}
+                        fallbackSlug={rp.slug}
                         alt={rp.name}
                         className="relative z-10 w-full h-full object-contain scale-[1.3]"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (!target.src.includes(`/products/${rp.slug}.png`)) {
-                              target.src = `/products/${rp.slug}.png`;
-                          }
-                        }}
                       />
                     </div>
                     <div className="space-y-3">

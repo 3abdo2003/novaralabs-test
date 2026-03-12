@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useMessage } from '../context/MessageContext';
 import { peptides, findPeptideByName, type Product } from '../products';
 import QuantitySelector from '../components/QuantitySelector';
+import ProductImage from '../components/ProductImage';
 
 const Peptides: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -132,16 +133,12 @@ const Peptides: React.FC = () => {
                                 >
                                     <div className="aspect-square bg-white rounded-xl mb-4 lg:mb-10 flex items-center justify-center overflow-hidden border border-gray-50 shadow-inner group-hover:scale-[1.03] transition-all relative p-0">
                                         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent"></div>
-                                        <img 
-                                          src={product.image || `/products/${product.slug}.png`} 
+                                        <ProductImage 
+                                          src={product.image} 
+                                          imagePath={product.imagePath}
+                                          fallbackSlug={product.slug}
                                           alt={product.name} 
                                           className="relative z-10 w-full h-full object-contain scale-[1.3] lg:scale-[1.6]" 
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            if (!target.src.includes(`/products/${product.slug}.png`)) {
-                                                target.src = `/products/${product.slug}.png`;
-                                            }
-                                          }}
                                         />
                                     </div>
 
