@@ -179,7 +179,7 @@ const QRGeneratorPage: React.FC = () => {
                     y = margin;
                 }
 
-                const qrElement = document.getElementById(`qr-export-${t.token}`);
+                const qrElement = document.getElementById(`qr-hidden-${t.token}`);
                 if (!qrElement) continue;
 
                 const svgElement = qrElement.querySelector('svg');
@@ -483,7 +483,6 @@ const QRGeneratorPage: React.FC = () => {
                                         <div className="p-1 sm:p-2 bg-white rounded-lg sm:rounded-2xl border border-zinc-100 shadow-sm relative overflow-hidden flex items-center justify-center">
                                             <div className="w-10 h-10 sm:w-20 sm:h-20">
                                                 <QRCodeSVG 
-                                                    id={`qr-export-${token.token}`}
                                                     value={`https://novarlabs-copy.vercel.app/verify/${token.token}`}
                                                     size={100}
                                                     style={{ width: '100%', height: '100%' }}
@@ -523,7 +522,7 @@ const QRGeneratorPage: React.FC = () => {
             {/* Hidden elements for SVG to Canvas extraction */}
             <div className="fixed -left-[2000px] -top-[2000px]">
                 {selectedBatchTokens.map(t => (
-                    <div key={t.token} id={`qr-export-${t.token}`}>
+                    <div key={t.token} id={`qr-hidden-${t.token}`}>
                         <QRCodeSVG value={`https://novarlabs-copy.vercel.app/verify/${t.token}`} size={300} includeMargin={true} />
                     </div>
                 ))}
