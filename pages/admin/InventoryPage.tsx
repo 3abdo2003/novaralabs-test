@@ -579,9 +579,10 @@ const InventoryPage: React.FC = () => {
                 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1 flex items-center gap-1.5"><Info className="w-3 h-3" /> Short Description</label>
-                  <input 
-                    className="w-full bg-zinc-50/50 border border-zinc-200 rounded-xl p-3 text-sm font-medium text-zinc-700 outline-none focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                  <textarea 
+                    className="w-full bg-zinc-50/50 border border-zinc-200 rounded-xl p-3 text-sm font-medium text-zinc-700 outline-none focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 transition-all min-h-[60px] resize-none"
                     placeholder="Brief summary for inquiry form..."
+                    rows={2}
                     value={formData.shortDescription || ''}
                     onChange={e => setFormData({ ...formData, shortDescription: e.target.value })}
                   />

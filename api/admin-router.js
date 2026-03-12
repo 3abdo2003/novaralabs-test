@@ -4,6 +4,7 @@ import login from '../lib/api/admin/login.js';
 import orders from '../lib/api/admin/orders.js';
 import promoCodes from '../lib/api/admin/promo-codes.js';
 import users from '../lib/api/admin/users.js';
+import qrcodes from '../lib/api/admin/qrcodes.js';
 
 export default async function handler(req, res) {
     // Vercel rewrites or direct calls might have different URL formats
@@ -20,6 +21,7 @@ export default async function handler(req, res) {
         case 'orders': return orders(req, res);
         case 'promo-codes': return promoCodes(req, res);
         case 'users': return users(req, res);
+        case 'qrcodes': return qrcodes(req, res);
         default: 
             return res.status(404).json({ 
                 success: false, 

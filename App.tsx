@@ -18,6 +18,8 @@ import InventoryPage from './pages/admin/InventoryPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import PromoCodesPage from './pages/admin/PromoCodesPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import QRGeneratorPage from './pages/admin/QRGeneratorPage';
+import VerifyPage from './pages/VerifyPage';
 import AdminLayout from './components/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminGuard from './components/AdminGuard';
@@ -106,6 +108,11 @@ const App: React.FC = () => {
                 <Route path="/admin/orders" element={<AdminGuard><AdminLayout><OrdersPage /></AdminLayout></AdminGuard>} />
                 <Route path="/admin/promo-codes" element={<AdminGuard><AdminLayout><PromoCodesPage /></AdminLayout></AdminGuard>} />
                 <Route path="/admin/settings" element={<AdminGuard><AdminLayout><SettingsPage /></AdminLayout></AdminGuard>} />
+                <Route path="/admin/qrcodes" element={<AdminGuard><AdminLayout><QRGeneratorPage /></AdminLayout></AdminGuard>} />
+                
+                {/* Public Verification */}
+                <Route path="/verify/:token" element={<VerifyPage />} />
+                <Route path="/verify" element={<VerifyPage />} />
               </Routes>
             </Layout>
           </CartProvider>

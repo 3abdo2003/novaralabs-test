@@ -120,7 +120,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                                     {product.name}
                                 </h2>
                                 {product.shortDescription && (
-                                    <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2 leading-tight">
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-1 leading-relaxed">
                                         {product.shortDescription}
                                     </p>
                                 )}

@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Ticket, LogOut, Menu, X, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Ticket, LogOut, Menu, X, ShieldAlert, QrCode } from 'lucide-react';
 
 const AdminSidebar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const navItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
     { icon: Package, label: 'Inventory', path: '/admin/inventory' },
+    { icon: QrCode, label: 'QR Verification', path: '/admin/qrcodes' },
     { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
     { icon: Ticket, label: 'Promo Codes', path: '/admin/promo-codes' },
     { icon: ShieldAlert, label: 'Settings', path: '/admin/settings' },
