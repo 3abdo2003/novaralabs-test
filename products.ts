@@ -6,11 +6,12 @@ export interface Product {
   priceWorldwide?: string;
   image: string;
   imagePath?: string;
+  stock?: number;
   description: string;
   shortDescription?: string;
   size?: string;
-  sizesEG?: { size: string; price: string }[];
-  sizesWorldwide?: { size: string; price: string }[];
+  sizesEG?: { size: string; price: string; stock?: number }[];
+  sizesWorldwide?: { size: string; price: string; stock?: number }[];
 }
 
 export function parsePrice(value: string | undefined | null): number | null {

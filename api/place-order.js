@@ -348,6 +348,30 @@ export default async function handler(req, res) {
   try {
     const client = await clientPromise;
     const db = client.db("NovaraLabs");
+
+    // Pre-validate stock for all items
+    for (const item of normalizedItems) {
+      const inventoryItem = await db.collection("inventoryitems").findOne({ slug: item.slug });
+      if (!inventoryItem) {
+        return res.status(400).json({ success: false, error: `Product not found: ${item.name}` });
+      }
+
+      let availableStock = inventoryItem.stock || 0;
+      if (item.size && inventoryItem.sizesEG) {
+        const variant = inventoryItem.sizesEG.find(v => v.size === item.size);
+        if (variant) {
+          availableStock = variant.stock || 0;
+        }
+      }
+
+      if (item.quantity > availableStock) {
+        return res.status(400).json({ 
+          success: false, 
+          error: `Insufficient stock for ${item.name}${item.size ? ` (${item.size})` : ''}. Available: ${availableStock}, Requested: ${item.quantity}.` 
+        });
+      }
+    }
+
     await db.collection("orders").insertOne(orderData);
 
     // Update stock levels

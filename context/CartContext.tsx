@@ -67,8 +67,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const closeCart = useCallback(() => setIsCartOpen(false), []);
 
   const addItem = useCallback((product: Product, quantity: number = 1, size?: string, price?: string) => {
-    const qty = clampInt(quantity, 1, 99);
-
     // Ensure we have a default size/price if not provided (Egypt region logic)
     let finalSize = size;
     let finalPrice = price;
@@ -81,12 +79,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       finalPrice = product.priceEG;
     }
 
+    // Determine max available stock for this variant or product
+    let maxStock = product.stock || 0;
+    if (finalSize && product.sizesEG) {
+      const variant = product.sizesEG.find(s => s.size === finalSize);
+      if (variant && variant.stock !== undefined) {
+        maxStock = variant.stock;
+      }
+    }
+
+    const qty = clampInt(quantity, 1, Math.max(1, maxStock));
+
     setItems((prev) => {
       const existing = prev.find((i) => i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || ''));
-      if (!existing) return [...prev, { product, quantity: qty, selectedSize: finalSize, selectedPrice: finalPrice }];
+      
+      if (!existing) {
+        // If not existing, just check against maxStock
+        const safeQty = Math.min(qty, maxStock);
+        if (safeQty <= 0) return prev; // Cannot add out of stock
+        return [...prev, { product, quantity: safeQty, selectedSize: finalSize, selectedPrice: finalPrice }];
+      }
+
+      // If existing, check total quantity against maxStock
+      const newTotal = clampInt(existing.quantity + qty, 1, maxStock);
       return prev.map((i) =>
         i.product.slug === product.slug && (i.selectedSize || '') === (finalSize || '')
-          ? { ...i, quantity: clampInt(i.quantity + qty, 1, 99) }
+          ? { ...i, quantity: newTotal }
           : i,
       );
     });
@@ -98,8 +116,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setQuantity = useCallback((slug: string, quantity: number, size?: string) => {
-    const qty = clampInt(quantity, 1, 99);
-    setItems((prev) => prev.map((i) => (i.product.slug === slug && (i.selectedSize || '') === (size || '') ? { ...i, quantity: qty } : i)));
+    setItems((prev) => prev.map((i) => {
+      if (i.product.slug === slug && (i.selectedSize || '') === (size || '')) {
+        // Determine stock limit
+        let maxStock = i.product.stock || 0;
+        if (i.selectedSize && i.product.sizesEG) {
+          const variant = i.product.sizesEG.find(s => s.size === i.selectedSize);
+          if (variant && variant.stock !== undefined) {
+            maxStock = variant.stock;
+          }
+        }
+        
+        const qty = clampInt(quantity, 1, Math.max(1, maxStock));
+        return { ...i, quantity: qty };
+      }
+      return i;
+    }));
   }, []);
 
   const updateItemSize = useCallback((slug: string, oldSize: string, newSize: string, newPrice: string) => {
