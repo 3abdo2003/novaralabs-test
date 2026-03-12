@@ -155,29 +155,21 @@ const PeptideDetail: React.FC = () => {
                   Select Dosage
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
-                  {product.sizesEG.map((s) => {
-                    const isSoldOut = s.stock === 0;
-                    return (
-                      <button
-                        key={s.size}
-                        disabled={isSoldOut}
-                        onClick={() => {
-                          setSelectedSize(s.size);
-                          setSelectedPrice(s.price);
-                        }}
-                        className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${
-                          selectedSize === s.size
-                            ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg shadow-zinc-900/10'
-                            : isSoldOut
-                            ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed line-through'
-                            : 'bg-white text-zinc-500 border-gray-100 hover:border-gray-300'
+                  {product.sizesEG.map((s) => (
+                    <button
+                      key={s.size}
+                      onClick={() => {
+                        setSelectedSize(s.size);
+                        setSelectedPrice(s.price);
+                      }}
+                      className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${selectedSize === s.size
+                        ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg shadow-zinc-900/10'
+                        : 'bg-white text-zinc-500 border-gray-100 hover:border-gray-300'
                         }`}
-                      >
-                        {s.size}
-                        {isSoldOut && <span className="block text-[8px] opacity-60">Out of Stock</span>}
-                      </button>
-                    );
-                  })}
+                    >
+                      {s.size}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -188,29 +180,21 @@ const PeptideDetail: React.FC = () => {
                   Select Dosage
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
-                  {product.sizesWorldwide.map((s) => {
-                    const isSoldOut = s.stock === 0;
-                    return (
-                      <button
-                        key={s.size}
-                        disabled={isSoldOut}
-                        onClick={() => {
-                          setSelectedSize(s.size);
-                          setSelectedPrice(s.price);
-                        }}
-                        className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${
-                          selectedSize === s.size
-                            ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg shadow-zinc-900/10'
-                            : isSoldOut
-                            ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed line-through'
-                            : 'bg-white text-zinc-500 border-gray-100 hover:border-gray-300'
+                  {product.sizesWorldwide.map((s) => (
+                    <button
+                      key={s.size}
+                      onClick={() => {
+                        setSelectedSize(s.size);
+                        setSelectedPrice(s.price);
+                      }}
+                      className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${selectedSize === s.size
+                        ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg shadow-zinc-900/10'
+                        : 'bg-white text-zinc-500 border-gray-100 hover:border-gray-300'
                         }`}
-                      >
-                        {s.size}
-                        {isSoldOut && <span className="block text-[8px] opacity-60">Out of Stock</span>}
-                      </button>
-                    );
-                  })}
+                    >
+                      {s.size}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -235,53 +219,31 @@ const PeptideDetail: React.FC = () => {
                     Add this item to your cart, then checkout with Instapay or Cash on Delivery.
                   </p>
 
-                  {(() => {
-                    const currentVariant = region === 'EG' 
-                      ? product.sizesEG?.find(s => s.size === selectedSize)
-                      : product.sizesWorldwide?.find(s => s.size === selectedSize);
-                    
-                    const availableStock = currentVariant ? (currentVariant.stock ?? 99) : (product.stock ?? 99);
-                    const isSoldOut = availableStock === 0;
-
-                    if (cartItem) {
-                      return (
-                        <div className="w-full sm:w-64">
-                          <QuantitySelector
-                            quantity={cartItem.quantity}
-                            onIncrease={() => {
-                              if (cartItem.quantity < availableStock) {
-                                setQuantity(product.slug, cartItem.quantity + 1, selectedSize);
-                              }
-                            }}
-                            onDecrease={() => {
-                              if (cartItem.quantity > 1) {
-                                setQuantity(product.slug, cartItem.quantity - 1, selectedSize);
-                              } else {
-                                removeItem(product.slug, selectedSize);
-                              }
-                            }}
-                          />
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <button
-                        type="button"
-                        disabled={isSoldOut}
-                        onClick={() => {
-                          addItem(product, 1, selectedSize, selectedPrice);
+                  {cartItem ? (
+                    <div className="w-full sm:w-64">
+                      <QuantitySelector
+                        quantity={cartItem.quantity}
+                        onIncrease={() => setQuantity(product.slug, cartItem.quantity + 1, selectedSize)}
+                        onDecrease={() => {
+                          if (cartItem.quantity > 1) {
+                            setQuantity(product.slug, cartItem.quantity - 1, selectedSize);
+                          } else {
+                            removeItem(product.slug, selectedSize);
+                          }
                         }}
-                        className={`w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 rounded-xl font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs transition-all shadow-xl ${
-                          isSoldOut
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
-                            : 'bg-orange-500 text-white hover:bg-orange-600 shadow-orange-500/10 hover:shadow-orange-500/30'
-                        }`}
-                      >
-                        {isSoldOut ? 'Out of Stock' : 'Add to cart'}
-                      </button>
-                    );
-                  })()}
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        addItem(product, 1, selectedSize, selectedPrice);
+                      }}
+                      className="w-full sm:w-auto px-10 lg:px-12 py-4 lg:py-5 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.18em] text-[10px] sm:text-xs hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/10 hover:shadow-orange-500/30"
+                    >
+                      Add to cart
+                    </button>
+                  )}
                 </>
               ) : (
                 <>

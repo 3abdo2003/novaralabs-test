@@ -137,10 +137,6 @@ const Checkout: React.FC = () => {
 
             try {
               setIsSubmitting(true);
-
-              // 1. Initial Stock Pre-check (Frontend)
-              // This is a quick UI-side check, but the server will do the authoritative check
-              
               const response = await fetch('/api/place-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -168,9 +164,7 @@ const Checkout: React.FC = () => {
 
               const data = await response.json().catch(() => ({}));
               if (!response.ok || !data?.success) {
-                // Specific stock error message from backend
-                const errorMsg = data?.error || 'Failed to place order';
-                throw new Error(errorMsg);
+                throw new Error(data?.error || 'Failed to place order');
               }
 
               clear();
@@ -181,12 +175,12 @@ const Checkout: React.FC = () => {
                 buttonLabel: 'OK',
               });
               navigate('/peptides');
-            } catch (err: any) {
+            } catch (err) {
               console.error(err);
               showMessage({
                 variant: 'error',
-                title: err.message.includes('Stock') || err.message.includes('sold out') ? 'Availability Issue' : 'Order Failed',
-                message: err.message || 'Could not complete your request. Please try again later.',
+                title: 'Order Failed',
+                message: 'Could not complete your request. Please try again later.',
                 buttonLabel: 'OK',
               });
             } finally {
@@ -398,63 +392,44 @@ const Checkout: React.FC = () => {
                 <div className="space-y-4 pt-6 border-t border-white/5">
                   <div className="space-y-2">
                     <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Promo Code</label>
-                    {!appliedPromo ? (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={promoInput}
-                          onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                          placeholder="ENTER CODE"
-                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-white uppercase focus:outline-none focus:border-orange-500/50"
-                        />
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (!promoInput || isValidatingPromo) return;
-                            try {
-                              setIsValidatingPromo(true);
-                              const res = await fetch('/api/validate-promo', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ code: promoInput })
-                              });
-                              const data = await res.json();
-                              if (data.success) {
-                                setAppliedPromo({ code: promoInput, discount: data.discount, type: data.type });
-                                showMessage({ variant: 'success', title: 'Code Applied', message: `You saved ${data.type === 'PERCENTAGE' ? `${data.discount}%` : `${data.discount} L.E`}`, buttonLabel: 'Great' });
-                              } else {
-                                setAppliedPromo(null);
-                                showMessage({ variant: 'error', title: 'Invalid Code', message: data.error || 'Code not found', buttonLabel: 'OK' });
-                              }
-                            } catch (err) {
-                              console.error(err);
-                            } finally {
-                              setIsValidatingPromo(false);
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={promoInput}
+                        onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                        placeholder="ENTER CODE"
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-white uppercase focus:outline-none focus:border-orange-500/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!promoInput || isValidatingPromo) return;
+                          try {
+                            setIsValidatingPromo(true);
+                            const res = await fetch('/api/validate-promo', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ code: promoInput })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                              setAppliedPromo({ code: promoInput, discount: data.discount, type: data.type });
+                              showMessage({ variant: 'success', title: 'Code Applied', message: `You saved ${data.type === 'PERCENTAGE' ? `${data.discount}%` : `${data.discount} L.E`}`, buttonLabel: 'Great' });
+                            } else {
+                              setAppliedPromo(null);
+                              showMessage({ variant: 'error', title: 'Invalid Code', message: data.error || 'Code not found', buttonLabel: 'OK' });
                             }
-                          }}
-                          className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors"
-                        >
-                          {isValidatingPromo ? '...' : 'Apply'}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-between bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">{appliedPromo.code}</span>
-                          <span className="text-[8px] font-bold text-orange-500/60 uppercase">Applied</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAppliedPromo(null);
-                            setPromoInput('');
-                          }}
-                          className="text-[9px] font-bold text-orange-500 hover:text-orange-400 uppercase tracking-tighter"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
+                          } catch (err) {
+                            console.error(err);
+                          } finally {
+                            setIsValidatingPromo(false);
+                          }
+                        }}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors"
+                      >
+                        Apply
+                      </button>
+                    </div>
                     {appliedPromo && (
                       <div className="flex items-center justify-between text-[10px] font-bold text-orange-500">
                         <span className="uppercase tracking-widest">Discount ({appliedPromo.code})</span>

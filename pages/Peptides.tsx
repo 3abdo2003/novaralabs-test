@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingBag, ShoppingCart, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import InquiryModal from '../components/InquiryModal';
 import { useRegion } from '../context/RegionContext';
 import { useCart } from '../context/CartContext';
@@ -18,7 +18,6 @@ const Peptides: React.FC = () => {
     const { region, setRegion } = useRegion();
     const { addItem, items, setQuantity, removeItem } = useCart();
     const { showMessage } = useMessage();
-    const [quantities, setQuantities] = useState<Record<string, number>>({});
 
     useEffect(() => {
         const fetchPeptides = async () => {
@@ -179,53 +178,14 @@ const Peptides: React.FC = () => {
                                                 className="w-full"
                                             />
                                         ) : (
-                                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:gap-4 mt-auto">
-                                                <div className="flex-shrink-0">
-                                                    <QuantitySelector 
-                                                        quantity={quantities[product.slug] || 1} 
-                                                        onIncrease={() => {
-                                                            const maxStock = product.stock ?? 99;
-                                                            const current = quantities[product.slug] || 1;
-                                                            if (current >= maxStock) {
-                                                                showMessage({
-                                                                    variant: 'error',
-                                                                    title: 'Limited Stock',
-                                                                    message: `Only ${maxStock} units currently available.`,
-                                                                    buttonLabel: 'OK'
-                                                                });
-                                                            } else {
-                                                                setQuantities(prev => ({ ...prev, [product.slug]: current + 1 }));
-                                                            }
-                                                        }}
-                                                        onDecrease={() => {
-                                                            const current = quantities[product.slug] || 1;
-                                                            if (current > 1) {
-                                                                setQuantities(prev => ({ ...prev, [product.slug]: current - 1 }));
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                                <button 
-                                                    onClick={() => addItem(product, quantities[product.slug] || 1)}
-                                                    disabled={product.stock === 0}
-                                                    className={`flex-1 group/btn relative overflow-hidden h-10 lg:h-12 rounded-xl transition-all active:scale-[0.98] ${
-                                                        product.stock === 0 
-                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                                        : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/40'
-                                                    }`}
-                                                >
-                                                    <div className="relative z-10 flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-[10px]">
-                                                        {product.stock === 0 ? (
-                                                            <span>Out of Stock</span>
-                                                        ) : (
-                                                            <>
-                                                                <ShoppingBag size={14} className="group-hover/btn:rotate-12 transition-transform" />
-                                                                <span>Add to Cart</span>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </button>
-                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    addItem(product, 1);
+                                                }}
+                                                className="w-full py-4 bg-orange-500 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] hover:bg-orange-600 hover:shadow-orange-500/40 transition-all shadow-xl shadow-orange-500/10"
+                                            >
+                                                Add to cart
+                                            </button>
                                         )
                                     ) : (
                                         (product.sizesWorldwide && product.sizesWorldwide.length > 1) ? (
