@@ -162,17 +162,18 @@ const OrdersPage: React.FC = () => {
 
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [rejectOrder, setRejectOrder] = useState<Order | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Lock body scroll when any modal is open
   useEffect(() => {
-    if (selectedOrder || deleteId) {
+    if (selectedOrder || deleteId || rejectOrder) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
     return () => { document.body.style.overflow = ''; };
-  }, [selectedOrder, deleteId]);
+  }, [selectedOrder, deleteId, rejectOrder]);
 
   const handleStatusUpdate = async (order: Order, newStatus: string) => {
     setIsUpdatingStatus(true);
@@ -267,6 +268,23 @@ const OrdersPage: React.FC = () => {
       const json = await res.json();
       if (json.success) {
         setDeleteId(null);
+        fetchOrders(true);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleRejectAndDelete = async (id: string) => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/orders?id=${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setRejectOrder(null);
+        if (selectedOrder?._id === id) setSelectedOrder(null);
         fetchOrders(true);
       }
     } catch (err) {
@@ -432,7 +450,7 @@ const OrdersPage: React.FC = () => {
                           <CheckCircle className="w-4 h-4" />
                         </button>
                         <button 
-                          onClick={() => handleStatusUpdate(order, 'REJECTED')}
+                          onClick={() => setRejectOrder(order)}
                           disabled={isUpdatingStatus}
                           className="p-2 text-zinc-300 hover:text-red-500 transition-colors"
                           title="Reject Order"
@@ -547,7 +565,7 @@ const OrdersPage: React.FC = () => {
                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                              <button
                                  disabled={isUpdatingStatus}
-                                 onClick={() => handleStatusUpdate(selectedOrder, 'REJECTED')}
+                                 onClick={() => setRejectOrder(selectedOrder)}
                                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-zinc-50 text-zinc-400 hover:text-red-500 hover:bg-red-50/50 border border-zinc-100 transition-all text-center"
                              >
                                  Reject Order
@@ -680,6 +698,38 @@ const OrdersPage: React.FC = () => {
                     >
                         {isDeleting && <Loader2 className="w-3 h-3 animate-spin text-white" />}
                         Purge Record
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Reject Confirmation Modal */}
+      {rejectOrder && (
+        <div className="fixed inset-0 bg-red-950/20 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-red-100 flex flex-col p-8 animate-in zoom-in-95 duration-300">
+                <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mb-6">
+                    <AlertCircle className="w-6 h-6 text-red-500" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-900 mb-2">Reject & Delete Order?</h3>
+                <p className="text-zinc-500 text-xs mb-8 leading-relaxed font-medium">
+                    Are you sure you want to reject order <span className="text-zinc-900 font-bold">#{rejectOrder.orderId || rejectOrder._id.slice(-8).toUpperCase()}</span>? This will <span className="text-red-600 font-bold uppercase tracking-wider">permanently delete</span> the order from the logistics stream.
+                </p>
+                <div className="flex gap-3">
+                    <button 
+                        onClick={() => setRejectOrder(null)}
+                        disabled={isDeleting}
+                        className="flex-1 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={() => handleRejectAndDelete(rejectOrder._id)}
+                        disabled={isDeleting}
+                        className="flex-1 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-red-500 text-white shadow-lg shadow-red-200 hover:bg-red-600 transition-all flex items-center justify-center gap-2"
+                    >
+                        {isDeleting && <Loader2 className="w-3 h-3 animate-spin text-white" />}
+                        Reject Order
                     </button>
                 </div>
             </div>

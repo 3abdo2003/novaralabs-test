@@ -39,6 +39,15 @@ const QRGeneratorPage: React.FC = () => {
     const [generationCount, setGenerationCount] = useState(10);
 
     useEffect(() => {
+        if (viewingBatch) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [viewingBatch]);
+
+    useEffect(() => {
         fetchInitialData();
     }, []);
 
@@ -395,73 +404,76 @@ const QRGeneratorPage: React.FC = () => {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-4 sm:p-8 overscroll-contain">
-                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                                <div className="p-6 bg-orange-50/50 rounded-3xl border border-orange-100 flex items-center justify-between">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-8">
+                                <div className="p-3 sm:p-6 bg-orange-50/50 rounded-2xl sm:rounded-3xl border border-orange-100 flex items-center justify-between">
                                     <div>
-                                        <p className="text-[9px] font-black text-orange-400 uppercase tracking-widest mb-1">Unused</p>
-                                        <p className="text-2xl font-black text-orange-900">{selectedBatchTokens.filter(t => t.status === 'unused').length}</p>
+                                        <p className="text-[8px] sm:text-[9px] font-black text-orange-400 uppercase tracking-widest mb-0.5 sm:mb-1">Unused</p>
+                                        <p className="text-lg sm:text-2xl font-black text-orange-900">{selectedBatchTokens.filter(t => t.status === 'unused').length}</p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-orange-100/50 flex items-center justify-center text-orange-500">
-                                        <QrCode className="w-5 h-5" />
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-orange-100/50 flex items-center justify-center text-orange-500">
+                                        <QrCode className="w-4 h-4 sm:w-5 sm:h-5" />
                                     </div>
                                 </div>
-                                <div className="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100 flex items-center justify-between">
+                                <div className="p-3 sm:p-6 bg-emerald-50/50 rounded-2xl sm:rounded-3xl border border-emerald-100 flex items-center justify-between">
                                     <div>
-                                        <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Authenticating</p>
-                                        <p className="text-2xl font-black text-emerald-900">{selectedBatchTokens.filter(t => t.status === 'verified').length}</p>
+                                        <p className="text-[8px] sm:text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-0.5 sm:mb-1">Authed</p>
+                                        <p className="text-lg sm:text-2xl font-black text-emerald-900">{selectedBatchTokens.filter(t => t.status === 'verified').length}</p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-emerald-100/50 flex items-center justify-center text-emerald-500">
-                                        <CheckCircle2 className="w-5 h-5" />
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-100/50 flex items-center justify-center text-emerald-500">
+                                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                                     </div>
                                 </div>
-                                <div className="p-6 bg-red-50/50 rounded-3xl border border-red-100 flex items-center justify-between">
+                                <div className="p-3 sm:p-6 bg-red-50/50 rounded-2xl sm:rounded-3xl border border-red-100 flex items-center justify-between">
                                     <div>
-                                        <p className="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">Fully Depleted</p>
-                                        <p className="text-2xl font-black text-red-900">{selectedBatchTokens.filter(t => t.status === 'expired').length}</p>
+                                        <p className="text-[8px] sm:text-[9px] font-black text-red-400 uppercase tracking-widest mb-0.5 sm:mb-1">Depleted</p>
+                                        <p className="text-lg sm:text-2xl font-black text-red-900">{selectedBatchTokens.filter(t => t.status === 'expired').length}</p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-red-100/50 flex items-center justify-center text-red-500">
-                                        <AlertCircle className="w-5 h-5" />
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-100/50 flex items-center justify-center text-red-500">
+                                        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                                     </div>
                                 </div>
-                                <div className="p-6 bg-zinc-900 rounded-3xl flex items-center justify-between text-white">
+                                <div className="p-3 sm:p-6 bg-zinc-900 rounded-2xl sm:rounded-3xl flex items-center justify-between text-white">
                                     <div>
-                                        <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Scan Intelligence</p>
-                                        <p className="text-2xl font-black text-white">{selectedBatchTokens.reduce((sum, t) => sum + t.scanCount, 0)}</p>
+                                        <p className="text-[8px] sm:text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-0.5 sm:mb-1">Total Scans</p>
+                                        <p className="text-lg sm:text-2xl font-black text-white">{selectedBatchTokens.reduce((sum, t) => sum + t.scanCount, 0)}</p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white">
-                                        <ExternalLink className="w-5 h-5" />
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center text-white">
+                                        <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-6">
                                 {selectedBatchTokens.map(token => (
-                                    <div key={token._id} className="bg-zinc-50/50 border border-zinc-100 p-4 rounded-3xl flex flex-col items-center gap-3 relative group transition-all hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50">
-                                        <div className="p-2 bg-white rounded-2xl border border-zinc-100 shadow-sm relative overflow-hidden">
-                                            <QRCodeSVG 
-                                                id={`qr-export-${token.token}`}
-                                                value={`https://novarlabs-copy.vercel.app/verify/${token.token}`}
-                                                size={80}
-                                                level="M"
-                                                includeMargin={true}
-                                            />
+                                    <div key={token._id} className="bg-zinc-50/50 border border-zinc-100 p-2 sm:p-4 rounded-xl sm:rounded-3xl flex flex-col items-center gap-1.5 sm:gap-3 relative group transition-all hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50">
+                                        <div className="p-1 sm:p-2 bg-white rounded-lg sm:rounded-2xl border border-zinc-100 shadow-sm relative overflow-hidden flex items-center justify-center">
+                                            <div className="w-10 h-10 sm:w-20 sm:h-20">
+                                                <QRCodeSVG 
+                                                    id={`qr-export-${token.token}`}
+                                                    value={`https://novarlabs-copy.vercel.app/verify/${token.token}`}
+                                                    size={100}
+                                                    style={{ width: '100%', height: '100%' }}
+                                                    level="M"
+                                                    includeMargin={true}
+                                                />
+                                            </div>
                                             {token.status === 'expired' && (
                                                 <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] flex items-center justify-center">
-                                                    <AlertCircle className="w-6 h-6 text-red-500" />
+                                                    <AlertCircle className="w-4 h-4 sm:w-6 sm:h-6 text-red-500" />
                                                 </div>
                                             )}
                                         </div>
                                         <div className="text-center w-full">
-                                            <p className="text-[10px] font-black text-zinc-900 uppercase tracking-tighter truncate mx-auto mb-1 font-mono">{token.token}</p>
-                                            <div className="flex justify-center flex-wrap gap-1">
-                                                <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md border ${
+                                            <p className="text-[8px] sm:text-[10px] font-black text-zinc-900 uppercase tracking-tighter truncate mx-auto mb-1 font-mono">{token.token}</p>
+                                            <div className="flex justify-center flex-wrap gap-0.5 sm:gap-1">
+                                                <span className={`text-[7px] sm:text-[8px] font-black uppercase tracking-widest px-1 sm:px-1.5 py-0.5 rounded-sm sm:rounded-md border ${
                                                     token.status === 'unused' ? 'bg-orange-50 border-orange-100 text-orange-500' :
                                                     token.status === 'verified' ? 'bg-emerald-50 border-emerald-100 text-emerald-500' :
                                                     'bg-red-50 border-red-100 text-red-500'
                                                 }`}>
-                                                    {token.status}
+                                                    {token.status.slice(0,4)}
                                                 </span>
-                                                <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md bg-zinc-900 text-white border border-zinc-900">
+                                                <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest px-1 sm:px-1.5 py-0.5 rounded-sm sm:rounded-md bg-zinc-900 text-white border border-zinc-900">
                                                     {token.scanCount}/2
                                                 </span>
                                             </div>
