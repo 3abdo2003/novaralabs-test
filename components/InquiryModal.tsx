@@ -54,7 +54,7 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose, product })
                         name: product.name,
                         slug: product.slug,
                         series: product.series,
-                        price: product.priceEG,
+                        price: product.priceWorldwide,
                         shortDescription: product.shortDescription,
                     },
                 }),
